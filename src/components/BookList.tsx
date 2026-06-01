@@ -4,7 +4,6 @@ import { useState, useMemo } from 'react';
 import { ProgressBar } from './ProgressBar';
 import { useDeleteBook } from '../hooks/useDeleteBook';
 import { BookOpen, Trash2 } from 'lucide-react';
-import { Plus, Minus } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 
 export const BookList = () => {
