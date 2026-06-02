@@ -9,7 +9,7 @@ export class ReadingLogDB extends Dexie {
     constructor() {
         super('reading-log');
         this.version(2).stores({
-            books: 'id, title, status',
+            books: 'id, title, status, syncedtoCloud',
             sessions: 'id, bookId, date, syncedToCloud'
         })
     }

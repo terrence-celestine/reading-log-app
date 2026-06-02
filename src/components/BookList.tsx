@@ -3,24 +3,24 @@ import { db } from '../lib/db';
 import { useState, useMemo } from 'react';
 import { ProgressBar } from './ProgressBar';
 import { useDeleteBook } from '../hooks/useDeleteBook';
-import { BookOpen, Trash2 } from 'lucide-react';
+import { BookOpen, Check, Trash2 } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
     const { updatePages } = useUpdateProgress();
-
+    
   // This hook automatically subscribes to the 'books' table
   // and re-runs the query whenever the database changes.
   const books = useLiveQuery(() => db.books.toArray());
 
   const [searchTerm, setSearchTerm] = useState('');
   const filteredBooks = useMemo(() => {
-if (!books) return [];
-return books.filter(book => 
-    !book.deleted && (
-    book.title.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()) || 
-    book.author.toLowerCase().includes(searchTerm.toLocaleLowerCase()))
+    if (!books) return [];
+    return books.filter(book => 
+        !book.deleted && (
+        book.title.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()) || 
+        book.author.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()))
 )
   }, [books, searchTerm])
 
@@ -37,7 +37,7 @@ return books.filter(book =>
 
   return (
     <div className="mt-8">
-        <h2 className="text-2xl font-bold text-white mb-4 flex items-center gap-3">
+        <h2 className="text-2xl font-bold text-white my-8 flex items-center gap-3 title">
         <BookOpen className="text-blue-500" />
         My Library
         </h2>
@@ -75,19 +75,27 @@ return books.filter(book =>
       
       {filteredBooks?.map((book) => (
     <li className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-slate-600 transition-all">
-    {/* Header: Title and Delete */}
     <div className="flex justify-between items-start mb-6">
       <div>
         <h3 className="text-xl font-bold text-white mb-1">{book.title}</h3>
         <p className="text-sm text-slate-400 font-medium">{book.author}</p>
       </div>
+      <div>
+      <button 
+        onClick={() => updatePages(book.id, book.totalPages)}
+        className="text-slate-500 hover:text-red-400 p-2 transition-colors"
+        aria-label="Finish book"
+      >
+        <Check size={18} cursor="pointer" />
+      </button>
       <button 
         onClick={() => deleteBook(book.id)}
         className="text-slate-500 hover:text-red-400 p-2 transition-colors"
         aria-label="Delete book"
       >
-        <Trash2 size={18} />
+        <Trash2 size={18} cursor="pointer" />
       </button>
+      </div>
     </div>
   
     {/* Progress Section */}
@@ -104,12 +112,15 @@ return books.filter(book =>
     <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-700/50">
       <div className="flex items-center gap-2">
         {/* Your Input Field Component */}
+        <p>Currently on: {" "}
         <input
           type="number"
           className="w-16 p-1 bg-slate-900 border border-slate-700 rounded text-center text-sm text-white"
           value={book.pagesRead}
           onChange={(e) => updatePages(book.id, parseInt(e.target.value) - book.pagesRead)}
         />
+         {" "} of {book.totalPages}
+        </p>
       </div>
       <span className="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-[10px] uppercase font-bold tracking-wide">
         {book.status}

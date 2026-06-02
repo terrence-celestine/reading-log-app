@@ -13,8 +13,6 @@ export const useSyncStore = create<SyncState>((set) => ({
 
 export const syncManager = {
   async processQueue() {
-    console.log("is syncing")
-
     // 1. Find all pending sessions
     const pendingSessions = await db.sessions
     .where('syncedToCloud')
@@ -25,8 +23,6 @@ export const syncManager = {
 
     useSyncStore.getState().setSyncing(true);
 
-    console.log(`Syncing ${pendingSessions.length} sessions...`);
-
     for (const session of pendingSessions) {
       try {
         // 2. Simulate API Call
@@ -35,12 +31,10 @@ export const syncManager = {
         
         // 3. Mark as synced
         await db.sessions.update(session.id, { syncedToCloud: true });
-        console.log("updated")
       } catch (error) {
         console.error(`Failed to sync session ${session.id}`, error);
         await db.sessions.update(session.id, { syncedToCloud: false });
       } finally {
-        console.log("done")
         useSyncStore.getState().setSyncing(false);
       }
     }
