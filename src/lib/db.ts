@@ -4,8 +4,8 @@ import type { Table } from "dexie";
 
 export class ReadingLogDB extends Dexie {
     // Use the '!' (definite assignment assertion)
-    books: Table<Book>;
-    sessions: Table<ReadingSession>;
+    books!: Table<Book>;
+    sessions!: Table<ReadingSession>;
 
     constructor() {
         super('reading-log');
