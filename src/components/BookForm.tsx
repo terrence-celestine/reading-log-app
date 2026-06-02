@@ -30,7 +30,7 @@ export const BookForm = () => {
         try {
           // 1. Query for the existing book by title
           const existingBook = await db.books
-          .filter(b => b.title.toLowerCase() === newBook.title.toLowerCase())
+          .filter(b => b.title.toLowerCase() === newBook.title.toLowerCase() && !b.deleted)
           .first();
 
           // 2. If it exists, show the toast and stop
