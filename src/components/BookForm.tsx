@@ -11,6 +11,8 @@ export const BookForm = () => {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
+        if (totalPages === 0) return;
+        
         const newBook: Book = {
             id: crypto.randomUUID(),
             title,
