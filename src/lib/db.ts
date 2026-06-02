@@ -3,6 +3,7 @@ import type {Book, ReadingSession} from "../types";
 import type { Table } from "dexie";
 
 export class ReadingLogDB extends Dexie {
+    // Use the '!' (definite assignment assertion)
     books: Table<Book>;
     sessions: Table<ReadingSession>;
 
