@@ -9,7 +9,7 @@ import { useUpdateProgress } from '../hooks/useUpdateProgress';
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
     const { updatePages } = useUpdateProgress();
-    
+
   // This hook automatically subscribes to the 'books' table
   // and re-runs the query whenever the database changes.
   const books = useLiveQuery(() => db.books.toArray());
@@ -66,7 +66,7 @@ export const BookList = () => {
         </p>
         <button 
           onClick={() => setSearchTerm('')}
-          className="mt-4 text-blue-600 hover:underline text-sm"
+          className="mt-4 text-blue-600 hover:underline text-sm cursor-pointer"
         >
           Clear search
         </button>

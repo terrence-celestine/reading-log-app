@@ -46,10 +46,11 @@ export const BookForm = () => {
         } catch (error) {
           console.log("catch")
           toast.error("Failed to add book. It might already be in your library.");
-        }
+        } finally {
           setTitle('');
           setAuthor('');
-        
+          setTotalPages(0)
+        }
     }
 
     return (
