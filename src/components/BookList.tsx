@@ -5,6 +5,7 @@ import { ProgressBar } from './ProgressBar';
 import { useDeleteBook } from '../hooks/useDeleteBook';
 import { BookOpen, Check, Trash2 } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
+import { BookSkeleton } from './BookSkeleton';
 
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
@@ -24,7 +25,11 @@ export const BookList = () => {
 )
   }, [books, searchTerm])
 
-  if (!books) return <div className="text-gray-500">Loading library...</div>;
+  if (!books) return (
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    {[...Array(4)].map((_, i) => <BookSkeleton key={i} />)}
+  </div>
+  );
 
   if (books?.length === 0) {
     return (

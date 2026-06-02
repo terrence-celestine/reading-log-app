@@ -54,7 +54,6 @@ export const BookForm = () => {
     }
 
     return (
-        <>
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-2xl mb-12">
         <h2 className="text-2xl font-black text-black mb-6">Add a New Book</h2>
         <div className="space-y-4">
@@ -91,6 +90,5 @@ export const BookForm = () => {
           </button>
         </div>
       </form>
-      </>
       );
     }
