@@ -27,8 +27,11 @@ export const BookList = () => {
   }, [books, searchTerm])
 
   const checkPageValue = (value: string, book: Book) => {
-    if (parseInt(value) < 0){
-      updatePages(book.id, 0)
+    const num = parseFloat(value as string);
+
+    // 1. It is NaN
+    // 2. Or if the string was empty/whitespace
+    if (isNaN(num) || value.toString().trim() === "") {
       return;
     }
     return updatePages(book.id, parseInt(value) - book.pagesRead)
