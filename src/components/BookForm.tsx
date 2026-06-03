@@ -57,7 +57,11 @@ export const BookForm = () => {
         <form onSubmit={handleSubmit} className="bg-white p-8 rounded-2xl shadow-2xl mb-12">
         <h2 className="text-2xl font-black text-black mb-6">Add a New Book</h2>
         <div className="space-y-4">
+        <label htmlFor="title" className="text-sm font-semibold text-slate-600 text-left">
+          Title
+        </label>
           <input
+          id="title"
             onChange={e => setTitle(e.target.value)}
             value={title}
             name="title"
@@ -65,7 +69,11 @@ export const BookForm = () => {
             className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             required
           />
+        <label htmlFor="author" className="text-sm font-semibold text-slate-600 text-left">
+          Author
+        </label>
           <input
+          id="author"
           onChange={e => setAuthor(e.target.value)}
           value={author}
             name="author"
@@ -73,7 +81,11 @@ export const BookForm = () => {
             className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             required
           />
+      <label htmlFor="totalPages" className="text-sm font-semibold text-slate-600 text-left">
+          Total Pages
+        </label>
           <input
+          id="totalPages"
             onChange={e => setTotalPages(parseInt(e.target.value))}
             name="totalPages"
             type="number"

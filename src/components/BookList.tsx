@@ -34,7 +34,10 @@ export const BookList = () => {
     if (isNaN(num) || value.toString().trim() === "") {
       return;
     }
-    return updatePages(book.id, parseInt(value) - book.pagesRead)
+    if (!isNaN(num) && value.trim() !== ""){
+      updatePages(book.id, parseInt(value) - book.pagesRead)
+    }
+    return
   }
 
   if (!books) return (
