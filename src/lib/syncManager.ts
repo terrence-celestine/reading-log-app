@@ -30,10 +30,10 @@ export const syncManager = {
         await new Promise((resolve) => setTimeout(resolve, 1000));
         
         // 3. Mark as synced
-        await db.sessions.update(session.id, { syncedToCloud: true });
+        await db.sessions.update(session.id, { syncedToCloud: 1 });
       } catch (error) {
         console.error(`Failed to sync session ${session.id}`, error);
-        await db.sessions.update(session.id, { syncedToCloud: false });
+        await db.sessions.update(session.id, { syncedToCloud: 0 });
       } finally {
         useSyncStore.getState().setSyncing(false);
       }

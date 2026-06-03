@@ -79,11 +79,11 @@ export const BookList = () => {
       )}
       
       {filteredBooks?.map((book) => (
-    <li className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-slate-600 transition-all">
+    <li key={book.id} className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-slate-600 transition-all">
     <div className="flex justify-between items-start mb-6">
       <div>
         <h3 className="text-xl font-bold text-white mb-1">{book.title}</h3>
-        <p className="text-sm text-slate-400 font-medium">{book.author}</p>
+        <p className="text-sm text-slate-400 font-medium text-left">{book.author}</p>
       </div>
       <div>
       <button 

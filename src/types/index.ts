@@ -12,11 +12,10 @@ export type Book = {
 };
 
 export interface ReadingSession {
-    id: string;
+    id?: string;
     bookId: string;
-    durationMinutes: number;
     pagesRead: number;
     date: string;
-    syncedToCloud: boolean;
+    syncedToCloud: number;
 }
 

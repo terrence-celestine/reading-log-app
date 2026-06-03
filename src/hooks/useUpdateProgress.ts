@@ -11,6 +11,14 @@ export const useUpdateProgress = () => {
       pagesRead: newPages,
       status: newPages >= book.totalPages ? 'finished' : 'reading'
     });
+
+    // 3. Log the "Sprint" in the Sessions table (for history/sync)
+    await db.sessions.add({
+      bookId: id,
+      pagesRead: newPages, // Log only the amount changed
+      date: new Date().toISOString(),
+      syncedToCloud: 0
+    });
   };
 
   return { updatePages };
