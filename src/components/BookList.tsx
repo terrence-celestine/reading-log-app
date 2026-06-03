@@ -6,6 +6,7 @@ import { useDeleteBook } from '../hooks/useDeleteBook';
 import { BookOpen, Check, Trash2 } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { BookSkeleton } from './BookSkeleton';
+import type { Book } from '../types';
 
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
@@ -24,6 +25,14 @@ export const BookList = () => {
         book.author.toLocaleLowerCase().includes(searchTerm.toLocaleLowerCase()))
 )
   }, [books, searchTerm])
+
+  const checkPageValue = (value: string, book: Book) => {
+    if (parseInt(value) < 0){
+      updatePages(book.id, 0)
+      return;
+    }
+    return updatePages(book.id, parseInt(value) - book.pagesRead)
+  }
 
   if (!books) return (
     <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
@@ -122,7 +131,7 @@ export const BookList = () => {
           type="number"
           className="w-16 p-1 bg-slate-900 border border-slate-700 rounded text-center text-sm text-white"
           value={book.pagesRead}
-          onChange={(e) => updatePages(book.id, parseInt(e.target.value) - book.pagesRead)}
+          onChange={(e) => checkPageValue(e.target.value, book)}
         />
          {" "} of {book.totalPages}
         </p>
