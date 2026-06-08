@@ -2,6 +2,7 @@ interface EnrichmentData {
     summary: string;
     coverUrl: string | null;
     isbn?: string;
+    pageCount?: number;
 }
 
 export async function enrichBook(title: string, author: string): Promise<EnrichmentData>{

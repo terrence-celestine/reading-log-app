@@ -7,15 +7,10 @@ import { enrichBook } from "../lib/enrichBook";
 export const BookForm = () => {
     const [title, setTitle] = useState<string>('');
     const [author, setAuthor] = useState<string>('');
-    const [totalPages, setTotalPages] = useState<number>(0)
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        if (totalPages === 0) {
-          toast.error(`Total pages cannot be 0`);
-          return;
-        }
 
         let newBook: Book = {
             id: crypto.randomUUID(),
@@ -23,7 +18,6 @@ export const BookForm = () => {
             author,
             status: 'to-read',
             progressPercentage: 0,
-            totalPages, 
             pagesRead: 0,
             createdAt: new Date().toISOString()        }
 
@@ -47,6 +41,7 @@ export const BookForm = () => {
             .then(async (enrichmentData) => {
               await db.books.update(newBook.id, {
                 coverUrl: enrichmentData.coverUrl || undefined,
+                totalPages: enrichmentData.pageCount || 0,
                 metadataStatus: 'success',
                 isbn: enrichmentData.isbn,
                 summary: enrichmentData.summary
@@ -68,7 +63,6 @@ export const BookForm = () => {
         } finally {
           setTitle('');
           setAuthor('');
-          setTotalPages(0)
         }
     }
 
@@ -97,19 +91,6 @@ export const BookForm = () => {
           value={author}
             name="author"
             placeholder="Author"
-            className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
-            required
-          />
-      <label htmlFor="totalPages" className="text-sm font-semibold text-slate-600 text-left">
-          Total Pages
-        </label>
-          <input
-          id="totalPages"
-            onChange={e => setTotalPages(parseInt(e.target.value))}
-            name="totalPages"
-            type="number"
-            value={totalPages}
-            placeholder="Total Pages"
             className="w-full p-4 bg-slate-50 rounded-xl border border-slate-200 focus:ring-2 focus:ring-blue-500 outline-none transition-all"
             required
           />

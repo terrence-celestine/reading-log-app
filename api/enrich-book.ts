@@ -47,7 +47,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         const prompt = `Provide a concise, spoiler-free summary (2-3 sentences) of the book "${title}" by "${author}". 
 Also, if you are highly confident, provide its 13-digit ISBN. 
-Respond strictly in JSON format with the keys "summary" (string) and "isbn" (string or null). Do not include any markdown formatting or backticks in your response.`;
+Respond strictly in JSON format with the keys "summary" (string) and "isbn" (string or null) and "pageCount" (number or null). Do not include any markdown formatting or backticks in your response.`;
 
         result = await model.generateContent({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -70,8 +70,8 @@ Respond strictly in JSON format with the keys "summary" (string) and "isbn" (str
 
     const responseText = result.response.text();
     const parsedData = JSON.parse(responseText);
-    
     const summary = parsedData.summary || '';
+    const pageCount = parsedData.pageCount || 0;
     const isbn = parsedData.isbn || undefined;
 
     // 5. Resolve Cover Image URL via Open Library
@@ -103,6 +103,7 @@ Respond strictly in JSON format with the keys "summary" (string) and "isbn" (str
       summary,
       coverUrl,
       isbn,
+      pageCount
     });
 
   } catch (error: any) {
