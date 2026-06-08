@@ -36,19 +36,37 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   }
 
     try {
-    // 4. Call Gemini for a summary and ISBN-13
-    const model = aiClient.getGenerativeModel({ model: 'gemini-2.0-flash' });
-    
-    const prompt = `Provide a concise, spoiler-free summary (2-3 sentences) of the book "${title}" by "${author}". 
+    // 4. Call Gemini for a summary and ISBN-13 (using supported models)
+    let result;
+    const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
+    let lastError: any = null;
+
+    for (const modelName of modelsToTry) {
+      try {
+        const model = aiClient.getGenerativeModel({ model: modelName });
+        
+        const prompt = `Provide a concise, spoiler-free summary (2-3 sentences) of the book "${title}" by "${author}". 
 Also, if you are highly confident, provide its 13-digit ISBN. 
 Respond strictly in JSON format with the keys "summary" (string) and "isbn" (string or null). Do not include any markdown formatting or backticks in your response.`;
 
-    const result = await model.generateContent({
-      contents: [{ role: 'user', parts: [{ text: prompt }] }],
-      generationConfig: {
-        responseMimeType: 'application/json',
-      },
-    });
+        result = await model.generateContent({
+          contents: [{ role: 'user', parts: [{ text: prompt }] }],
+          generationConfig: {
+            responseMimeType: 'application/json',
+          },
+        });
+        
+        // If we succeeded, break out of the fallback loop!
+        break;
+      } catch (err: any) {
+        console.warn(`Model ${modelName} failed, trying fallback...`, err.message || err);
+        lastError = err;
+      }
+    }
+
+    if (!result) {
+      throw lastError || new Error('All Gemini models failed to respond.');
+    }
 
     const responseText = result.response.text();
     const parsedData = JSON.parse(responseText);
