@@ -9,6 +9,9 @@ export type Book = {
     progressPercentage: number;
     createdAt: string;
     deleted?: boolean;
+    summary?: string;
+    coverUrl?: string;
+    metadataStatus?: 'pending' | 'success' | 'failed';
 };
 
 export interface ReadingSession {

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { db } from "../lib/db";
 import type { Book } from "../types";
 import { toast } from "sonner";
+import { enrichBook } from "../lib/enrichBook";
 
 export const BookForm = () => {
     const [title, setTitle] = useState<string>('');
@@ -16,7 +17,7 @@ export const BookForm = () => {
           return;
         }
 
-        const newBook: Book = {
+        let newBook: Book = {
             id: crypto.randomUUID(),
             title,
             author,
@@ -24,8 +25,7 @@ export const BookForm = () => {
             progressPercentage: 0,
             totalPages, 
             pagesRead: 0,
-            createdAt: new Date().toISOString()
-        }
+            createdAt: new Date().toISOString()        }
 
         try {
           // 1. Query for the existing book by title
@@ -39,7 +39,26 @@ export const BookForm = () => {
             return;
           }
 
+          newBook.metadataStatus = 'pending';
           await db.books.add(newBook);
+
+          // Trigger AI enrichment in the background (non-blocking)
+          enrichBook(newBook.title, newBook.author)
+            .then(async (enrichmentData) => {
+              await db.books.update(newBook.id, {
+                coverUrl: enrichmentData.coverUrl || undefined,
+                metadataStatus: 'success',
+                isbn: enrichmentData.isbn,
+                summary: enrichmentData.summary
+              });
+            })
+            .catch(async (err) => {
+              console.error("Failed to enrich book:", err);
+              await db.books.update(newBook.id, {
+                metadataStatus: 'failed'
+              });
+            });
+
           toast.success(`Added "${newBook.title}" to your library!`, {
             description: "You can track your progress in the dashboard."
           });

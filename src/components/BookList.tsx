@@ -41,7 +41,7 @@ export const BookList = () => {
   }
 
   if (!books) return (
-    <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+    <div className="space-y-3">
     {[...Array(4)].map((_, i) => <BookSkeleton key={i} />)}
   </div>
   );
@@ -94,59 +94,96 @@ export const BookList = () => {
       )}
       
       {filteredBooks?.map((book) => (
-    <li key={book.id} className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-slate-600 transition-all">
-    <div className="flex justify-between items-start mb-6">
-      <div>
-        <h3 className="text-xl font-bold text-white mb-1">{book.title}</h3>
-        <p className="text-sm text-slate-400 font-medium text-left">{book.author}</p>
-      </div>
-      <div>
-      <button 
-        onClick={() => updatePages(book.id, book.totalPages)}
-        className="text-slate-500 hover:text-red-400 p-2 transition-colors"
-        aria-label="Finish book"
-      >
-        <Check size={18} cursor="pointer" />
-      </button>
-      <button 
-        onClick={() => deleteBook(book.id)}
-        className="text-slate-500 hover:text-red-400 p-2 transition-colors"
-        aria-label="Delete book"
-      >
-        <Trash2 size={18} cursor="pointer" />
-      </button>
-      </div>
-    </div>
-  
-    {/* Progress Section */}
-    <div className="space-y-3">
-      <div className="flex justify-between items-end text-xs uppercase tracking-widest font-bold text-slate-500">
-        <span>Progress</span>
-        <span>{book.pagesRead} / {book.totalPages} pages</span>
-      </div>
+    <li key={book.id} className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-slate-600 transition-all flex flex-col sm:flex-row gap-6">
       
-      <ProgressBar current={book.pagesRead} total={book.totalPages} />
-    </div>
-  
-    {/* Footer: Controls */}
-    <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-700/50">
-      <div className="flex items-center gap-2">
-        {/* Your Input Field Component */}
-        <p>Currently on: {" "}
-        <input
-          type="number"
-          className="w-16 p-1 bg-slate-900 border border-slate-700 rounded text-center text-sm text-white"
-          value={book.pagesRead}
-          onChange={(e) => checkPageValue(e.target.value, book)}
-        />
-         {" "} of {book.totalPages}
-        </p>
+      {/* Left Side: Cover Image */}
+      <div className="w-24 h-36 bg-slate-900 rounded-xl border border-slate-700/50 shrink-0 flex items-center justify-center overflow-hidden relative group">
+        {book.metadataStatus === 'pending' && (
+          <div className="absolute inset-0 bg-slate-800 animate-pulse flex items-center justify-center">
+            <span className="text-[10px] text-slate-500 font-bold uppercase tracking-wider">AI Loading...</span>
+          </div>
+        )}
+        {book.coverUrl ? (
+          <img 
+            src={book.coverUrl} 
+            alt={`${book.title} cover`} 
+            className="w-full h-full object-cover"
+            onError={(e) => {
+              // Fallback if image fails to load
+              e.currentTarget.style.display = 'none';
+            }}
+          />
+        ) : (
+          <div className="text-slate-600 flex flex-col items-center gap-1">
+            <BookOpen size={24} />
+            <span className="text-[10px] uppercase font-bold tracking-wider text-slate-500">No Cover</span>
+          </div>
+        )}
       </div>
-      <span className="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-[10px] uppercase font-bold tracking-wide">
-        {book.status}
-      </span>
-    </div>
-  </li>
+
+      {/* Right Side: Book Details & Progress */}
+      <div className="flex-1 flex flex-col justify-between">
+        <div>
+          <div className="flex justify-between items-start mb-2">
+            <div>
+              <h3 className="text-xl font-bold text-white mb-1 text-left">{book.title}</h3>
+              <p className="text-sm text-slate-400 font-medium text-left">{book.author}</p>
+            </div>
+            <div className="flex gap-1">
+              <button 
+                onClick={() => updatePages(book.id, book.totalPages)}
+                className="text-slate-500 hover:text-green-400 p-2 transition-colors cursor-pointer"
+                aria-label="Finish book"
+              >
+                <Check size={18} />
+              </button>
+              <button 
+                onClick={() => deleteBook(book.id)}
+                className="text-slate-500 hover:text-red-400 p-2 transition-colors cursor-pointer"
+                aria-label="Delete book"
+              >
+                <Trash2 size={18} />
+              </button>
+            </div>
+          </div>
+
+          {/* Book Summary */}
+          {book.summary && (
+            <p className="text-sm text-slate-400 text-left mb-4 line-clamp-3 italic border-l-2 border-blue-500/30 pl-3">
+              {book.summary}
+            </p>
+          )}
+        </div>
+
+        {/* Progress Section */}
+        <div className="space-y-3">
+          <div className="flex justify-between items-end text-xs uppercase tracking-widest font-bold text-slate-500">
+            <span>Progress</span>
+            <span>{book.pagesRead} / {book.totalPages} pages</span>
+          </div>
+          
+          <ProgressBar current={book.pagesRead} total={book.totalPages} />
+        </div>
+
+        {/* Footer Controls */}
+        <div className="flex justify-between items-center mt-6 pt-4 border-t border-slate-700/50">
+          <div className="flex items-center gap-2">
+            <p className="text-sm text-slate-400">Currently on:{" "}
+              <input
+                type="number"
+                className="w-16 p-1 bg-slate-900 border border-slate-700 rounded text-center text-sm text-white"
+                value={book.pagesRead}
+                onChange={(e) => checkPageValue(e.target.value, book)}
+              />
+              {" "} of {book.totalPages}
+            </p>
+          </div>
+          <span className="px-3 py-1 bg-slate-700 text-slate-300 rounded-full text-[10px] uppercase font-bold tracking-wide">
+            {book.status}
+          </span>
+        </div>
+      </div>
+    </li>
       ))}
     </ul>
     </div>
