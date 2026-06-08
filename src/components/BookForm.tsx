@@ -19,7 +19,8 @@ export const BookForm = () => {
             status: 'to-read',
             progressPercentage: 0,
             pagesRead: 0,
-            createdAt: new Date().toISOString()        }
+            createdAt: new Date().toISOString()        
+          }
 
         try {
           // 1. Query for the existing book by title

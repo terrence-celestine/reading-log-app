@@ -22,3 +22,16 @@ export interface ReadingSession {
     syncedToCloud: number;
 }
 
+export interface Recommendation {
+    id?: string;
+    bookId: string;
+    date: string;
+    syncedToCloud: number;
+    pagesRead: number;
+    title: string;
+    author: string;
+    isbn: string;
+    totalPages: number;
+    summary: string;
+    coverUrl?: string
+}
