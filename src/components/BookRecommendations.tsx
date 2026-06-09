@@ -1,6 +1,6 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
-import { BookOpen, Plus } from 'lucide-react';
+import { BookOpen, Plus, RefreshCcw } from 'lucide-react';
 import { BookSkeleton } from './BookSkeleton';
 import type { Recommendation } from "../types";
 import { getBookRecommendations } from '../lib/getBookRecommendations';
@@ -9,30 +9,36 @@ import { toast } from 'sonner';
 
 export const BookRecommendations = () => {
   const [bookRecommendations, setBookRecommendations] = useState<{ recommendations: Recommendation[] }>({ recommendations: [] });
+  const [isLoading, setIsLoading] = useState(false);
   // This hook automatically subscribes to the 'books' table
   // and re-runs the query whenever the database changes.
 
   const books = useLiveQuery(() => db.books.filter(b => !b.deleted && b.status === 'finished').toArray());
   const recommendations = useLiveQuery(() => db.recommendations.toArray());
 
+  const getRecommendations = async () => {
+    toast.loading('Getting recommendations...');
+    setIsLoading(true);
+    const bookRecommendations = await getBookRecommendations(books);
+    setBookRecommendations({ recommendations: bookRecommendations.recommendations });
+    db.recommendations.clear();
+    db.recommendations.bulkAdd(bookRecommendations.recommendations.map(recommendation => ({
+      bookId: recommendation.bookId,
+      date: new Date().toISOString(),
+      syncedToCloud: 0,
+      pagesRead: recommendation.pagesRead,
+      title: recommendation.title,
+      author: recommendation.author,
+      isbn: recommendation.isbn,
+      totalPages: recommendation.totalPages,
+      summary: recommendation.summary,
+      coverUrl: recommendation.coverUrl
+    })));
+    toast.success('Recommendations refreshed!');
+    setIsLoading(false);
+  }
+
   useEffect(() => {
-    const getRecommendations = async () => {
-      const bookRecommendations = await getBookRecommendations(books);
-      setBookRecommendations({ recommendations: bookRecommendations.recommendations });
-      db.recommendations.clear();
-      db.recommendations.bulkAdd(bookRecommendations.recommendations.map(recommendation => ({
-        bookId: recommendation.bookId,
-        date: new Date().toISOString(),
-        syncedToCloud: 0,
-        pagesRead: recommendation.pagesRead,
-        title: recommendation.title,
-        author: recommendation.author,
-        isbn: recommendation.isbn,
-        totalPages: recommendation.totalPages,
-        summary: recommendation.summary,
-        coverUrl: recommendation.coverUrl
-      })));
-    }
     if (recommendations && recommendations.length) {
       setBookRecommendations({ recommendations: recommendations });
     }
@@ -147,6 +153,13 @@ export const BookRecommendations = () => {
     </li>
       ))}
     </ul>
+    <button 
+  onClick={() => getRecommendations()}
+  className="m-auto w-full sm:w-auto px-6 py-3.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 rounded-xl transition-all duration-200 active:scale-[0.98] cursor-pointer mt-6 flex items-center gap-2.5 justify-center font-semibold text-sm shadow-lg shadow-blue-500/5"
+>
+  <RefreshCcw size={16} className="animate-spin-slow group-hover:rotate-180 transition-transform duration-500" />
+  Refresh Recommendations
+</button>
     </div>
   );
 };
