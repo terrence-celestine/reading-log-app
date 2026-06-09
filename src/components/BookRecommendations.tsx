@@ -4,49 +4,53 @@ import { BookOpen, Plus, RefreshCcw } from 'lucide-react';
 import { BookSkeleton } from './BookSkeleton';
 import type { Recommendation } from "../types";
 import { getBookRecommendations } from '../lib/getBookRecommendations';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { toast } from 'sonner';
 
 export const BookRecommendations = () => {
-  const [bookRecommendations, setBookRecommendations] = useState<{ recommendations: Recommendation[] }>({ recommendations: [] });
+  const [_, setBookRecommendations] = useState<{ recommendations: Recommendation[] }>({ recommendations: [] });
   const [isLoading, setIsLoading] = useState(false);
   // This hook automatically subscribes to the 'books' table
   // and re-runs the query whenever the database changes.
 
-  const books = useLiveQuery(() => db.books.filter(b => !b.deleted && b.status === 'finished').toArray());
+  const finishedBooks = useLiveQuery(() => db.books.filter(b => !b.deleted && b.status === 'finished').toArray());
   const recommendations = useLiveQuery(() => db.recommendations.toArray());
 
   const getRecommendations = async () => {
     if (isLoading) return;
+    if (!finishedBooks || finishedBooks.length === 0) {
+      toast.error('You have no finished books to get recommendations from!');
+      return;
+    }
+
     toast.loading('Getting recommendations...');
     setIsLoading(true);
-    const bookRecommendations = await getBookRecommendations(books);
-    setBookRecommendations({ recommendations: bookRecommendations.recommendations });
-    db.recommendations.clear();
-    db.recommendations.bulkAdd(bookRecommendations.recommendations.map(recommendation => ({
-      bookId: recommendation.bookId,
-      date: new Date().toISOString(),
-      syncedToCloud: 0,
-      pagesRead: recommendation.pagesRead,
-      title: recommendation.title,
-      author: recommendation.author,
-      isbn: recommendation.isbn,
-      totalPages: recommendation.totalPages,
-      summary: recommendation.summary,
-      coverUrl: recommendation.coverUrl
-    })));
-    toast.success('Recommendations refreshed!');
-    setIsLoading(false);
+    
+    try {
+      const bookRecommendations = await getBookRecommendations(finishedBooks);
+      setBookRecommendations({ recommendations: bookRecommendations.recommendations });
+      await db.recommendations.clear();
+      await db.recommendations.bulkAdd(bookRecommendations.recommendations.map(recommendation => ({
+        bookId: recommendation.bookId,
+        date: new Date().toISOString(),
+        syncedToCloud: 0,
+        pagesRead: recommendation.pagesRead,
+        title: recommendation.title,
+        author: recommendation.author,
+        isbn: recommendation.isbn,
+        totalPages: recommendation.totalPages,
+        summary: recommendation.summary,
+        coverUrl: recommendation.coverUrl
+      })));
+      toast.success('Recommendations refreshed!');
+    } catch (error) {
+      console.log(error);
+      toast.error('Failed to get recommendations!');
+    } finally {
+      toast.dismiss()
+      setIsLoading(false);
+    }
   }
-
-  useEffect(() => {
-    if (recommendations && recommendations.length) {
-      setBookRecommendations({ recommendations: recommendations });
-    }
-    if (books && books.length && !recommendations.length) {
-        getRecommendations();
-    }
-  }, [books, recommendations]);
 
   const addBook = async (book: Recommendation) => {
     const foundBook = await db.books.filter(b => b.title.toLowerCase() === book.title.toLowerCase() && !b.deleted).first();
@@ -78,17 +82,26 @@ export const BookRecommendations = () => {
     }
   }
 
-  if (!bookRecommendations) return (
+  if (recommendations === undefined || finishedBooks === undefined) return (
     <div className="space-y-3">
     {[...Array(4)].map((_, i) => <BookSkeleton key={i} />)}
   </div>
   );
 
-  if (bookRecommendations?.recommendations.length === 0) {
+  if (recommendations.length === 0) {
     return (
       <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg mt-8">
-        <p className="text-gray-400">We found no books to recommends.</p>
-        <p className="text-sm text-gray-400">Add your first book to get recommendations.</p>
+        <p className="text-gray-400">Ready for some recommendations?</p>
+        <p className="text-sm text-gray-400">
+          Click the button below to get recommendations.
+        </p>
+        <button 
+          onClick={() => getRecommendations()}
+          className="w-full sm:w-auto px-6 py-3.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 rounded-xl transition-all duration-200 active:scale-[0.98] cursor-pointer mt-6 flex items-center gap-2.5 justify-center font-semibold text-sm shadow-lg shadow-blue-500/5"
+        >
+          <RefreshCcw size={16} className="animate-spin-slow group-hover:rotate-180 transition-transform duration-500" />
+          Refresh Recommendations
+        </button>
       </div>
     );
   }
@@ -101,8 +114,8 @@ export const BookRecommendations = () => {
         </h2>
         <p className="text-sm text-gray-400">Based on your reading history, here are some books we think you might enjoy:</p>
       <ul className="space-y-3 mt-4">
-      {bookRecommendations.recommendations.map((book) => (
-    <li key={book.id} className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-slate-600 transition-all flex flex-col sm:flex-row gap-6">
+      {recommendations.map((book) => (
+    <li key={book.title + book.author} className="bg-slate-800/50 p-6 rounded-2xl border border-slate-700/50 shadow-lg hover:border-slate-600 transition-all flex flex-col sm:flex-row gap-6">
       
       {/* Left Side: Cover Image */}
       <div className="w-24 h-36 bg-slate-900 rounded-xl border border-slate-700/50 shrink-0 flex items-center justify-center overflow-hidden relative group">
@@ -132,15 +145,17 @@ export const BookRecommendations = () => {
               <h3 className="text-xl font-bold text-white mb-1 text-left">{book.title}</h3>
               <p className="text-sm text-slate-400 font-medium text-left">{book.author}</p>
             </div>
-            <div className="flex gap-1">
+            {!isLoading && (
+              <div className="flex gap-1">
               <button 
                 onClick={() => addBook(book)}
                 className="text-slate-500 hover:text-red-400 p-2 transition-colors cursor-pointer"
-                aria-label="Delete book"
+                aria-label="Add book to library"
               >
                 <Plus size={18} />
               </button>
             </div>
+            )}
           </div>
 
           {/* Book Summary */}
@@ -156,10 +171,11 @@ export const BookRecommendations = () => {
     </ul>
     <button 
   onClick={() => getRecommendations()}
+  disabled={isLoading}
   className="m-auto w-full sm:w-auto px-6 py-3.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 rounded-xl transition-all duration-200 active:scale-[0.98] cursor-pointer mt-6 flex items-center gap-2.5 justify-center font-semibold text-sm shadow-lg shadow-blue-500/5"
 >
-  <RefreshCcw size={16} className="animate-spin-slow group-hover:rotate-180 transition-transform duration-500" />
-  Refresh Recommendations
+  {isLoading ? <RefreshCcw size={16} className="animate-spin-slow group-hover:rotate-180 transition-transform duration-500" /> : <RefreshCcw size={16} />}
+  {isLoading ? 'Getting recommendations...' : 'Refresh Recommendations'}
 </button>
     </div>
   );
