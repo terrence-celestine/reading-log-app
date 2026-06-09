@@ -17,6 +17,7 @@ export const BookRecommendations = () => {
   const recommendations = useLiveQuery(() => db.recommendations.toArray());
 
   const getRecommendations = async () => {
+    if (isLoading) return;
     toast.loading('Getting recommendations...');
     setIsLoading(true);
     const bookRecommendations = await getBookRecommendations(books);
