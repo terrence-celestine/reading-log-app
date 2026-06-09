@@ -3,7 +3,7 @@ export type Book = {
     title: string;
     author: string;
     isbn?: string;
-    totalPages?: number;
+    totalPages: number;
     pagesRead: number;    
     status: 'to-read' | 'reading' | 'finished';
     progressPercentage: number;
