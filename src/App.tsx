@@ -1,6 +1,7 @@
 import { BookForm } from './components/BookForm'
 import { BookList } from './components/BookList'
 import { BookRecommendations } from './components/BookRecommendations';
+import { NotesSidebar } from './components/NotesSidebar';
 import { ReadingStats } from './components/ReadingStat';
 import { SyncStatus } from './components/SyncStatus';
 import { useSyncWorker } from './hooks/useSyncWorker';
@@ -18,6 +19,7 @@ const App = () => {
       <ReadingStats/>
       <BookList />
       <BookRecommendations />
+      <NotesSidebar />
       <Toaster richColors position="bottom-right" />
     </main>
   )

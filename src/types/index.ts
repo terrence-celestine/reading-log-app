@@ -35,3 +35,14 @@ export interface Recommendation {
     summary: string;
     coverUrl?: string
 }
+
+// src/types/index.ts
+export type BookNote = {
+    id?: number; // Dexie's ++id is an auto-incremented number
+    bookId: string;
+    note: string;
+    pageNumber?: number;
+    type: 'note' | 'quote';
+    date: string;
+    syncedToCloud: number;
+};

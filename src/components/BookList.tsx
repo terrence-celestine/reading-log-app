@@ -3,15 +3,17 @@ import { db } from '../lib/db';
 import { useState, useMemo } from 'react';
 import { ProgressBar } from './ProgressBar';
 import { useDeleteBook } from '../hooks/useDeleteBook';
-import { BookOpen, Check, Trash2 } from 'lucide-react';
+import { BookOpen, Check, PencilIcon, Trash2 } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { BookSkeleton } from './BookSkeleton';
 import type { Book } from '../types';
+import { useNotesStore } from '../hooks/useNotesStore';
 
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
     const { updatePages } = useUpdateProgress();
-
+    const { open: openNotesPanel } = useNotesStore();
+    
   // This hook automatically subscribes to the 'books' table
   // and re-runs the query whenever the database changes.
   const books = useLiveQuery(() => db.books.toArray());
@@ -143,6 +145,13 @@ export const BookList = () => {
                 aria-label="Delete book"
               >
                 <Trash2 size={18} />
+              </button>
+              <button 
+                onClick={() => openNotesPanel(book.id)}
+                className="text-slate-500 hover:text-red-400 p-2 transition-colors cursor-pointer"
+                aria-label="Add Notes"
+              >
+                <PencilIcon size={18} />
               </button>
             </div>
           </div>
