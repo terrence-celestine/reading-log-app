@@ -88,7 +88,7 @@ export const BookRecommendations = () => {
   </div>
   );
 
-  if (recommendations.length === 0) {
+  if (finishedBooks && recommendations.length === 0) {
     return (
       <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg mt-8">
         <p className="text-gray-400">Ready for some recommendations?</p>
