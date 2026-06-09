@@ -65,6 +65,7 @@ export const BookRecommendations = () => {
         }).then(() => {
           toast.success(`Added "${book.title}" to your library!`);
         }).catch((error) => {
+          console.log(error);
           toast.error(`Failed to add "${book.title}" to your library!`);
         });
     }
