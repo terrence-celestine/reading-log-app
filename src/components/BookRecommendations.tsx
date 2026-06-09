@@ -88,20 +88,29 @@ export const BookRecommendations = () => {
   </div>
   );
 
-  if (finishedBooks && recommendations.length === 0) {
+  if (finishedBooks.length === 0) {
+    return (
+      <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg mt-8">
+        <p className="text-gray-400">You have no finished books to get recommendations from!</p>
+      </div>
+    );
+  }
+
+  if (finishedBooks.length > 0 && recommendations.length === 0) {
     return (
       <div className="text-center py-12 border-2 border-dashed border-gray-200 rounded-lg mt-8">
         <p className="text-gray-400">Ready for some recommendations?</p>
         <p className="text-sm text-gray-400">
           Click the button below to get recommendations.
         </p>
-        <button 
-          onClick={() => getRecommendations()}
-          className="w-full sm:w-auto px-6 py-3.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 rounded-xl transition-all duration-200 active:scale-[0.98] cursor-pointer mt-6 flex items-center gap-2.5 justify-center font-semibold text-sm shadow-lg shadow-blue-500/5"
-        >
-          <RefreshCcw size={16} className="animate-spin-slow group-hover:rotate-180 transition-transform duration-500" />
-          Refresh Recommendations
-        </button>
+          <button 
+            onClick={() => getRecommendations()}
+            disabled={isLoading}
+            className="m-auto w-full sm:w-auto px-6 py-3.5 bg-blue-600/10 hover:bg-blue-600/20 border border-blue-500/30 hover:border-blue-500/50 text-blue-400 hover:text-blue-300 rounded-xl transition-all duration-200 active:scale-[0.98] cursor-pointer mt-6 flex items-center gap-2.5 justify-center font-semibold text-sm shadow-lg shadow-blue-500/5"
+          >
+            {isLoading ? <RefreshCcw size={16} className="animate-spin-slow group-hover:rotate-180 transition-transform duration-500" /> : <RefreshCcw size={16} />}
+            {isLoading ? 'Getting recommendations...' : 'Refresh Recommendations'}
+          </button>
       </div>
     );
   }
@@ -140,10 +149,17 @@ export const BookRecommendations = () => {
       {/* Right Side: Book Details & Progress */}
       <div className="flex-1 flex flex-col justify-between">
         <div>
-          <div className="flex justify-between items-start mb-2">
+        <div className="flex justify-between items-start mb-2">
             <div>
               <h3 className="text-xl font-bold text-white mb-1 text-left">{book.title}</h3>
-              <p className="text-sm text-slate-400 font-medium text-left">{book.author}</p>
+              <div className="flex flex-wrap items-center gap-x-2 gap-y-1 text-left">
+                <p className="text-sm text-slate-400 font-medium">{book.author}</p>
+                {book.totalPages && (
+                  <span className="text-xs bg-slate-800 text-slate-400 px-2 py-0.5 rounded-md border border-slate-700/50 font-semibold">
+                    {book.totalPages} pages
+                  </span>
+                )}
+              </div>
             </div>
             {!isLoading && (
               <div className="flex gap-1">
