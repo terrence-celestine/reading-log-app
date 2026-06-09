@@ -1,10 +1,26 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
+
+interface Recommendation {
+  id?: string;
+  bookId: string;
+  date: string;
+  syncedToCloud: number;
+  pagesRead: number;
+  title: string;
+  author: string;
+  isbn: string;
+  totalPages: number;
+  summary: string;
+  coverUrl?: string
+}
+
+
 // Lazily initialize the Gemini client to ensure process.env is fully loaded
 let genAI: GoogleGenerativeAI | null = null;
 
-function getGenAI() {
+const getGenAI = () =>{
   if (!genAI) {
     const apiKey = process.env.GEMINI_API_KEY;
     if (apiKey) {
@@ -13,6 +29,11 @@ function getGenAI() {
   }
   return genAI;
 }
+
+const getCoverUrl = async (isbn: string): Promise<string> => {
+  const response = await fetch(`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`);
+  return response.url;
+};
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // 1. Only allow POST requests
@@ -48,7 +69,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         
         const prompt = `Provide a list of recommended books based on the user's reading history: ${books.map(book => `${book.title} by ${book.author}`).join(', ')}". 
 Also, if you are highly confident, provide its 13-digit ISBN. 
-Respond strictly in JSON format with the keys "recommendations" (array of objects with the keys "title" (string), "author" (string), "isbn" (string or null), "pageCount" (number or null), "summary" (string)). Do not include any markdown formatting or backticks in your response.`;
+Respond strictly in JSON format with the keys "recommendations" (array of objects with the keys "title" (string), "author" (string), "isbn" (string or null), "totalPages" (number or null), "summary" (string)). Do not include any markdown formatting or backticks in your response.`;
 
         result = await model.generateContent({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
@@ -72,6 +93,16 @@ Respond strictly in JSON format with the keys "recommendations" (array of object
     const responseText = result.response.text();
     const parsedData = JSON.parse(responseText);
 
+    // get all cover urls from open library
+    const coverUrls = await Promise.all(parsedData.recommendations.map(async (recommendation: Recommendation) => {
+      const coverUrl = await getCoverUrl(recommendation.isbn);
+      return coverUrl;
+    }));
+
+    parsedData.recommendations.forEach((recommendation: Recommendation, index: number) => {
+      recommendation.coverUrl = coverUrls[index];
+    });
+          
       // 6. Return the enriched data
       return res.status(200).json({
         recommendations: parsedData.recommendations || []

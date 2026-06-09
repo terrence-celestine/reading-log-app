@@ -5,6 +5,7 @@ import { BookSkeleton } from './BookSkeleton';
 import type { Recommendation } from "../types";
 import { getBookRecommendations } from '../lib/getBookRecommendations';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
 export const BookRecommendations = () => {
   const [bookRecommendations, setBookRecommendations] = useState<{ recommendations: Recommendation[] }>({ recommendations: [] });
@@ -12,6 +13,7 @@ export const BookRecommendations = () => {
   // and re-runs the query whenever the database changes.
 
   const books = useLiveQuery(() => db.books.filter(b => !b.deleted && b.status === 'finished').toArray());
+  const recommendations = useLiveQuery(() => db.recommendations.toArray());
 
   useEffect(() => {
     const getRecommendations = async () => {
@@ -28,12 +30,45 @@ export const BookRecommendations = () => {
         isbn: recommendation.isbn,
         totalPages: recommendation.totalPages,
         summary: recommendation.summary,
+        coverUrl: recommendation.coverUrl
       })));
     }
-    if (books && books.length) {
+    if (recommendations && recommendations.length) {
+      setBookRecommendations({ recommendations: recommendations });
+    }
+    if (books && books.length && !recommendations.length) {
         getRecommendations();
     }
-  }, [books]);
+  }, [books, recommendations]);
+
+  const addBook = async (book: Recommendation) => {
+    const foundBook = await db.books.filter(b => b.title.toLowerCase() === book.title.toLowerCase() && !b.deleted).first();
+    if (foundBook) {
+      toast.error(`"${book.title}" is already in your library!`);
+      return;
+    } else {
+      await db.books.add({
+            id: crypto.randomUUID(),
+            title: book.title,
+            author: book.author,
+            isbn: book.isbn,
+            pagesRead: 0,
+            coverUrl: book.coverUrl,
+            totalPages: book.totalPages,
+            summary: book.summary,
+            metadataStatus: 'success',
+            status: 'to-read',
+            progressPercentage: 0,
+            createdAt: new Date().toISOString(),
+        }).then(() => {
+          db.recommendations.where('title').equals(book.title).delete();
+        }).then(() => {
+          toast.success(`Added "${book.title}" to your library!`);
+        }).catch((error) => {
+          toast.error(`Failed to add "${book.title}" to your library!`);
+        });
+    }
+  }
 
   if (!bookRecommendations) return (
     <div className="space-y-3">
@@ -91,7 +126,7 @@ export const BookRecommendations = () => {
             </div>
             <div className="flex gap-1">
               <button 
-                onClick={() => console.log('add book')}
+                onClick={() => addBook(book)}
                 className="text-slate-500 hover:text-red-400 p-2 transition-colors cursor-pointer"
                 aria-label="Delete book"
               >
