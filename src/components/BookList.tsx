@@ -8,6 +8,7 @@ import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { BookSkeleton } from './BookSkeleton';
 import type { Book } from '../types';
 import { useNotesStore } from '../hooks/useNotesStore';
+import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
@@ -132,27 +133,39 @@ export const BookList = () => {
               <p className="text-sm text-slate-400 font-medium text-left">{book.author}</p>
             </div>
             <div className="flex gap-1">
-              <button 
-                onClick={() => updatePages(book.id, book.totalPages)}
-                className="text-slate-500 hover:text-green-400 p-2 transition-colors cursor-pointer"
-                aria-label="Finish book"
-              >
-                <Check size={18} />
-              </button>
-              <button 
-                onClick={() => deleteBook(book.id)}
-                className="text-slate-500 hover:text-red-400 p-2 transition-colors cursor-pointer"
-                aria-label="Delete book"
-              >
-                <Trash2 size={18} />
-              </button>
-              <button 
-                onClick={() => openNotesPanel(book.id)}
-                className="text-slate-500 hover:text-red-400 p-2 transition-colors cursor-pointer"
-                aria-label="Add Notes"
-              >
-                <PencilIcon size={18} />
-              </button>
+              <Tooltip>
+                  <TooltipTrigger            
+                  onClick={() => updatePages(book.id, book.totalPages)}
+                  className="text-slate-500 hover:text-green-400 p-2 transition-colors"
+                  aria-label="Add Notes">
+                    <Check size={18} className="cursor-pointer"/>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-green-500 text-white rounded-md p-2">
+                    Finish Reading Book
+                  </TooltipContent>
+                </Tooltip>
+              <Tooltip>
+                  <TooltipTrigger            
+                  onClick={() => deleteBook(book.id)}
+                  className="text-slate-500 hover:text-red-400 p-2 transition-colors"
+                  aria-label="Add Notes">
+                    <Trash2 size={18} className="cursor-pointer"/>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-red-500 text-white rounded-md p-2">
+                    Delete Book
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger            
+                  onClick={() => openNotesPanel(book.id)}
+                  className="text-slate-500 hover:text-purple-400 p-2 transition-colors"
+                  aria-label="Add Notes">
+                    <PencilIcon size={18} className="cursor-pointer"/>
+                  </TooltipTrigger>
+                  <TooltipContent className="bg-purple-500 text-white rounded-md p-2">
+                    Add Notes
+                  </TooltipContent>
+                </Tooltip>
             </div>
           </div>
 

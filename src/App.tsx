@@ -3,7 +3,9 @@ import { BookList } from './components/BookList'
 import { BookRecommendations } from './components/BookRecommendations';
 import { NotesSidebar } from './components/NotesSidebar';
 import { ReadingStats } from './components/ReadingStat';
+import { ReadingStreak } from './components/ReadingStreak';
 import { SyncStatus } from './components/SyncStatus';
+import { TooltipProvider } from './components/ui/tooltip';
 import { useSyncWorker } from './hooks/useSyncWorker';
 import { Toaster } from "sonner";
 
@@ -11,6 +13,8 @@ const App = () => {
   useSyncWorker();
   return (
     <main className="max-w-2xl mx-auto p-8">
+      <TooltipProvider>
+      <ReadingStreak />
       <SyncStatus />
       <h1 className="text-3xl font-black tracking-tighter text-slate-100 mb-8">
         Reading Log
@@ -21,6 +25,7 @@ const App = () => {
       <BookRecommendations />
       <NotesSidebar />
       <Toaster richColors position="bottom-right" />
+      </TooltipProvider>
     </main>
   )
 }
