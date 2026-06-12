@@ -1,8 +1,7 @@
-import { render, screen, waitFor, act } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { ReviewPanel } from './ReviewPanel';
-import { db } from '../lib/db';
 import { toast } from 'sonner';
 
 // Mock store close callback

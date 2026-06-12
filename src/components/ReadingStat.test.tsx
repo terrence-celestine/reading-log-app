@@ -8,7 +8,7 @@ let mockBooks: Book[] | undefined = [];
 
 // Mock dexie-react-hooks
 vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: (fn: any) => {
+  useLiveQuery: () => {
     return mockBooks;
   },
 }));

@@ -2,7 +2,6 @@ import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { BookNotesPanel } from './BookNotesPanel';
-import { db } from '../lib/db';
 import type { Book, BookNote } from '../types';
 
 // Mock variables for live queries
@@ -11,7 +10,7 @@ let mockNotes: BookNote[] = [];
 
 // Mock dexie-react-hooks
 vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: (fn: any, deps?: any) => {
+  useLiveQuery: (fn: any) => {
     // Determine which query is executing based on function logic structure
     const fnStr = fn.toString();
     if (fnStr.includes('books.get')) {

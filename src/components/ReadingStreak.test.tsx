@@ -8,7 +8,7 @@ let mockSessions: ReadingSession[] | undefined = [];
 
 // Mock dexie-react-hooks
 vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: (fn: any) => {
+  useLiveQuery: () => {
     return mockSessions;
   },
 }));
