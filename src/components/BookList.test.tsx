@@ -47,7 +47,7 @@ vi.mock('../hooks/useReviewStore', () => ({
 
 // Mock dexie-react-hooks
 vi.mock('dexie-react-hooks', () => ({
-  useLiveQuery: (fn: any) => {
+  useLiveQuery: () => {
     return mockBooks;
   },
 }));
