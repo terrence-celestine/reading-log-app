@@ -288,7 +288,7 @@ export const BookList = () => {
                       <TooltipTrigger            
                         onClick={() => updatePages(book.id, book.totalPages)}
                         className="text-slate-500 hover:text-green-400 p-2 transition-colors"
-                        aria-label="Add Notes"
+                        aria-label="Finish Reading Book"
                       >
                         <Check size={18} className="cursor-pointer"/>
                       </TooltipTrigger>
@@ -300,7 +300,7 @@ export const BookList = () => {
                       <TooltipTrigger            
                         onClick={() => deleteBook(book.id)}
                         className="text-slate-500 hover:text-red-400 p-2 transition-colors"
-                        aria-label="Add Notes"
+                        aria-label="Delete Book"
                       >
                         <Trash2 size={18} className="cursor-pointer"/>
                       </TooltipTrigger>
