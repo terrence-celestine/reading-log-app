@@ -10,6 +10,7 @@ import { BookSkeleton } from './BookSkeleton';
 import type { Book } from '../types';
 import { useNotesStore } from '../hooks/useNotesStore';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
+import { useReviewStore } from '../hooks/useReviewStore';
 
 const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
   'to-read': {
@@ -32,6 +33,7 @@ export const BookList = () => {
     const { updatePages } = useUpdateProgress();
     const { open: openNotesPanel } = useNotesStore();
     const [searchStatus, setSearchStatus] = useState('all');
+    const { open: openReviewPanel } = useReviewStore();
   // This hook automatically subscribes to the 'books' table
   // and re-runs the query whenever the database changes.
   const books = useLiveQuery(() => db.books.toArray());
@@ -352,6 +354,11 @@ export const BookList = () => {
                     {" "} of {book.totalPages}
                   </p>
                 </div>
+                {book.status === 'finished' && (<button onClick={() => openReviewPanel(book.id)} className="bg-green-500/10 text-green-400 border border-green-500/20 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wide transition-colors cursor-pointer items-center gap-2">
+                  <span>
+                  Write Review
+                  </span>
+                </button>)}
                 <span className={`px-3 py-1 rounded-full text-[10px] uppercase font-bold tracking-wide ${STATUS_STYLES[book.status]?.classes || 'bg-slate-700 text-slate-300'}`}>
                   {STATUS_STYLES[book.status]?.label || book.status}
                 </span>

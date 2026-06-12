@@ -4,6 +4,7 @@ import { BookRecommendations } from './components/BookRecommendations';
 import { NotesSidebar } from './components/NotesSidebar';
 import { ReadingStats } from './components/ReadingStat';
 import { ReadingStreak } from './components/ReadingStreak';
+import { ReviewModal } from './components/ReviewModal';
 import { SyncStatus } from './components/SyncStatus';
 import { TooltipProvider } from './components/ui/tooltip';
 import { useSyncWorker } from './hooks/useSyncWorker';
@@ -25,6 +26,7 @@ const App = () => {
       <BookRecommendations />
       <NotesSidebar />
       <Toaster richColors position="bottom-right" />
+      <ReviewModal />
       </TooltipProvider>
     </main>
   )

@@ -12,6 +12,8 @@ export type Book = {
     summary?: string;
     coverUrl?: string;
     metadataStatus?: 'pending' | 'success' | 'failed';
+    rating?: number;
+    review?: string;
 };
 
 export interface ReadingSession {
