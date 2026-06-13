@@ -39,7 +39,7 @@ export interface Recommendation {
 }
 
 export type BookNote = {
-    id: number; // Dexie's ++id is an auto-incremented number
+    id?: number; // Dexie's ++id is an auto-incremented number
     bookId: string;
     note: string;
     pageNumber?: number;
@@ -54,7 +54,7 @@ export interface ReviewProps {
 }
 
 export type FeedItem = {
-    id: string | number;
+    id?: string | number;
     review?: string;
     note?: string;
 }
