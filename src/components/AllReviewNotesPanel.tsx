@@ -21,7 +21,7 @@ export const AllReviewNotesPanel = () => {
   useEffect(() => {
     if (!books) return;
 
-    const allReviews: ReviewProps[] = books.filter(book =>
+    const allReviews: any[] = books.filter(book =>
       book.review && book.review.length > 0
     ).map(book => ({ id: book.id, review: book.review }));
 
