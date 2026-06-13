@@ -270,7 +270,7 @@ export const BookList = () => {
                 <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
                   true ? 'bg-green-500/20 text-green-400' : 'bg-slate-800/60 text-slate-500'
                 }`}>
-                  {notes.length}
+                  {notes ? notes.length : 0}
                 </span>
               </button>
             </div>
