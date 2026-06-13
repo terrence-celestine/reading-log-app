@@ -53,7 +53,7 @@ export const BookList = () => {
       if (book.review && book.review.length > 0) {
         return {id: book.id, review: book.review};
       }
-    })
+    }).filter(review => review !== undefined);
     setReviews(allReviews);
   }, [books]);
 
