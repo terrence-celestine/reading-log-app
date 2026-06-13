@@ -1,13 +1,13 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { ProgressBar } from './ProgressBar';
 import { useDeleteBook } from '../hooks/useDeleteBook';
 import useUpdateBookStatus  from '../hooks/useUpdateBookStatus';
 import { ArchiveIcon, BookOpen, Check, PencilIcon, Trash2, Search, ListFilter, Bookmark, CheckCircle } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { BookSkeleton } from './BookSkeleton';
-import type { Book } from '../types';
+import type { Book, BookNote} from '../types';
 import { useNotesStore } from '../hooks/useNotesStore';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { useReviewStore } from '../hooks/useReviewStore';
@@ -37,6 +37,21 @@ export const BookList = () => {
   // This hook automatically subscribes to the 'books' table
   // and re-runs the query whenever the database changes.
   const books = useLiveQuery(() => db.books.toArray());
+  const notes = useLiveQuery(() => db.bookNotes.toArray());
+
+  const [reviews, setReviews] = useState([] as {id: string, review: string}[]);
+  const [panel, setPanel] = useState<'notes' | 'reviews' | 'none'>('none');
+
+  useEffect(() => {
+    if (!books) return;
+      const allReviews = books.map(book => {
+        if (book.review && book.review.length > 0) {
+          return {id: book.id, review: book.review};
+        }
+      })
+      setReviews(allReviews);
+  }, [books]);
+
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -206,6 +221,52 @@ export const BookList = () => {
                   searchStatus === 'finished' ? 'bg-purple-500/20 text-purple-400' : 'bg-slate-800/60 text-slate-500'
                 }`}>
                   {counts.finished}
+                </span>
+              </button>
+            </div>
+          </div>
+          
+        </div>
+        <div className="flex flex-col gap-4 items-stretch lg:items-center justify-between">
+
+          {/* Status Filter Tabs */}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-1.5 lg:mr-1">
+              <ListFilter size={14} className="text-slate-500" />
+              My Stuff:
+            </span>
+            <div className="flex flex-wrap gap-1 p-1 bg-slate-900/40 rounded-xl border border-slate-700/30">
+              {/* All Reviews */}
+              <button 
+                onClick={() => setPanel('reviews')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  panel === 'reviews'
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/30 shadow-sm' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 border border-transparent'
+                }`}
+              >
+                <Bookmark size={12} />
+                My Reviews
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                  true ? 'bg-green-500/20 text-green-400' : 'bg-slate-800/60 text-slate-500'
+                }`}>
+                  {reviews.length}
+                </span>
+              </button>
+              <button 
+                onClick={() => setPanel('notes')}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
+                  panel === 'notes'
+                    ? 'bg-green-500/20 text-green-400 border border-green-500/30 shadow-sm' 
+                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/30 border border-transparent'
+                }`}
+              >
+                <Bookmark size={12} />
+                My Notes
+                <span className={`text-[10px] px-1.5 py-0.5 rounded-full ${
+                  true ? 'bg-green-500/20 text-green-400' : 'bg-slate-800/60 text-slate-500'
+                }`}>
+                  {notes.length}
                 </span>
               </button>
             </div>

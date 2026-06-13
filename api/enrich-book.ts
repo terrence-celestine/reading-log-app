@@ -46,8 +46,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
         const model = aiClient.getGenerativeModel({ model: modelName });
         
         const prompt = `Provide a concise, spoiler-free summary (2-3 sentences) of the book "${title}" by "${author}". 
-Also, if you are highly confident, provide its 13-digit ISBN. 
-Respond strictly in JSON format with the keys "summary" (string) and "isbn" (string or null) and "pageCount" (number or null). Do not include any markdown formatting or backticks in your response.`;
+Also, if you are highly confident, provide its 10-digit ISBN, the page count, and the cover image URL. 
+Respond strictly in JSON format with the keys "summary" (string) and "isbn" (string or null) and "pageCount" (number or null) and "coverUrl" (string or null). Do not include any markdown formatting or backticks in your response.`;
 
         result = await model.generateContent({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
