@@ -38,9 +38,8 @@ export interface Recommendation {
     coverUrl?: string
 }
 
-// src/types/index.ts
 export type BookNote = {
-    id?: number; // Dexie's ++id is an auto-incremented number
+    id: number; // Dexie's ++id is an auto-incremented number
     bookId: string;
     note: string;
     pageNumber?: number;
@@ -48,3 +47,14 @@ export type BookNote = {
     date: string;
     syncedToCloud: number;
 };
+
+export interface ReviewProps {
+    id: string;
+    review: string;
+}
+
+export type FeedItem = {
+    id: string | number;
+    review?: string;
+    note?: string;
+}

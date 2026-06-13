@@ -2,6 +2,7 @@ import { BookForm } from './components/BookForm'
 import { BookList } from './components/BookList'
 import { BookRecommendations } from './components/BookRecommendations';
 import { NotesSidebar } from './components/NotesSidebar';
+import { ReviewNotesSidebar } from './components/ReviewNotesSidebar';
 import { ReadingStats } from './components/ReadingStat';
 import { ReadingStreak } from './components/ReadingStreak';
 import { ReviewModal } from './components/ReviewModal';
@@ -25,6 +26,7 @@ const App = () => {
       <BookList />
       <BookRecommendations />
       <NotesSidebar />
+      <ReviewNotesSidebar />
       <Toaster richColors position="bottom-right" />
       <ReviewModal />
       </TooltipProvider>

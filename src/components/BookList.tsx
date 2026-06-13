@@ -7,10 +7,11 @@ import useUpdateBookStatus  from '../hooks/useUpdateBookStatus';
 import { ArchiveIcon, BookOpen, Check, PencilIcon, Trash2, Search, ListFilter, Bookmark, CheckCircle } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { BookSkeleton } from './BookSkeleton';
-import type { Book } from '../types';
+import type { Book, ReviewProps } from '../types';
 import { useNotesStore } from '../hooks/useNotesStore';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { useReviewStore } from '../hooks/useReviewStore';
+import { usePanelStore } from '../hooks/usePanelStore';
 
 const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
   'to-read': {
@@ -27,11 +28,6 @@ const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
   }
 };
 
-interface ReviewProps {
-  id: string;
-  review: string;
-}
-
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
     const { updateBookStatus } = useUpdateBookStatus();
@@ -43,9 +39,10 @@ export const BookList = () => {
     // and re-runs the query whenever the database changes.
     const books = useLiveQuery(() => db.books.toArray());
     const notes = useLiveQuery(() => db.bookNotes.toArray());
+    const { open: openPanel } = usePanelStore();
 
   const [reviews, setReviews] = useState<ReviewProps[]>([]);
-  const [panel, setPanel] = useState<'notes' | 'reviews' | 'none'>('none');
+  const [panel, setPanel] = useState<'notes' | 'reviews' | 'none'>('reviews');
 
   useEffect(() => {
    if  (!books) return;
@@ -104,6 +101,10 @@ export const BookList = () => {
     return
   }
 
+  const handleOpenPanel = (panel: 'notes' | 'reviews') => {
+    openPanel();
+    setPanel(panel);
+  }
   if (!books) return (
     <div className="space-y-3">
     {[...Array(4)].map((_, i) => <BookSkeleton key={i} />)}
@@ -242,7 +243,7 @@ export const BookList = () => {
             <div className="flex flex-wrap gap-1 p-1 bg-slate-900/40 rounded-xl border border-slate-700/30">
               {/* All Reviews */}
               <button 
-                onClick={() => setPanel('reviews')}
+                onClick={() => handleOpenPanel('reviews')}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   panel === 'reviews'
                     ? 'bg-green-500/20 text-green-400 border border-green-500/30 shadow-sm' 
