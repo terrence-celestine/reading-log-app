@@ -1,6 +1,5 @@
 // src/components/ReviewNotesSidebar.tsx
 import { usePanelStore } from '../hooks/usePanelStore';
-// import { BookNotesPanel } from './BookNotesPanel';
 import { X } from 'lucide-react';
 import { AllReviewNotesPanel } from './AllReviewNotesPanel';
 
