@@ -49,12 +49,18 @@ export type BookNote = {
 };
 
 export interface ReviewProps {
-    id: string;
+    id?: string;
+    bookId?: string;
+    title: string;
+    author: string;
     review: string;
 }
 
 export type FeedItem = {
     id?: string | number;
+    bookId?: string;
     review?: string;
     note?: string;
+    title?: string;
+    author?: string;
 }

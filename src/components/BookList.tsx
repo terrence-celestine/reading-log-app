@@ -48,7 +48,7 @@ export const BookList = () => {
    if  (!books) return;
     const allReviews: ReviewProps[] = books.map(book => {
       if (book.review && book.review.length > 0) {
-        return {id: book.id, review: book.review};
+        return {title: book.title, author: book.author, review: book.review};
       }
     }).filter(review => review !== undefined);
     setReviews(allReviews);
@@ -259,7 +259,7 @@ export const BookList = () => {
                 </span>
               </button>
               <button 
-                onClick={() => setPanel('notes')}
+                onClick={() => handleOpenPanel('notes')}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all duration-200 cursor-pointer ${
                   panel === 'notes'
                     ? 'bg-green-500/20 text-green-400 border border-green-500/30 shadow-sm' 
