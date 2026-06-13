@@ -7,7 +7,7 @@ import useUpdateBookStatus  from '../hooks/useUpdateBookStatus';
 import { ArchiveIcon, BookOpen, Check, PencilIcon, Trash2, Search, ListFilter, Bookmark, CheckCircle } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { BookSkeleton } from './BookSkeleton';
-import type { Book, BookNote} from '../types';
+import type { Book } from '../types';
 import { useNotesStore } from '../hooks/useNotesStore';
 import { Tooltip, TooltipContent, TooltipTrigger } from './ui/tooltip';
 import { useReviewStore } from '../hooks/useReviewStore';
@@ -27,6 +27,11 @@ const STATUS_STYLES: Record<string, { label: string; classes: string }> = {
   }
 };
 
+interface ReviewProps {
+  id: string;
+  review: string;
+}
+
 export const BookList = () => {
     const { deleteBook } = useDeleteBook()
     const { updateBookStatus } = useUpdateBookStatus();
@@ -34,24 +39,23 @@ export const BookList = () => {
     const { open: openNotesPanel } = useNotesStore();
     const [searchStatus, setSearchStatus] = useState('all');
     const { open: openReviewPanel } = useReviewStore();
-  // This hook automatically subscribes to the 'books' table
-  // and re-runs the query whenever the database changes.
-  const books = useLiveQuery(() => db.books.toArray());
-  const notes = useLiveQuery(() => db.bookNotes.toArray());
+    // This hook automatically subscribes to the 'books' table
+    // and re-runs the query whenever the database changes.
+    const books = useLiveQuery(() => db.books.toArray());
+    const notes = useLiveQuery(() => db.bookNotes.toArray());
 
-  const [reviews, setReviews] = useState([] as {id: string, review: string}[]);
+  const [reviews, setReviews] = useState<ReviewProps[]>([]);
   const [panel, setPanel] = useState<'notes' | 'reviews' | 'none'>('none');
 
   useEffect(() => {
     if (!books) return;
-      const allReviews = books.map(book => {
-        if (book.review && book.review.length > 0) {
-          return {id: book.id, review: book.review};
-        }
-      })
-      setReviews(allReviews);
+    const allReviews = books.map(book => {
+      if (book.review && book.review.length > 0) {
+        return {id: book.id, review: book.review};
+      }
+    })
+    setReviews(allReviews);
   }, [books]);
-
 
   const [searchTerm, setSearchTerm] = useState('');
 
