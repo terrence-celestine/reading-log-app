@@ -48,8 +48,8 @@ export const BookList = () => {
   const [panel, setPanel] = useState<'notes' | 'reviews' | 'none'>('none');
 
   useEffect(() => {
-    if (!books) return;
-    const allReviews = books.map(book => {
+   if  (!books) return;
+    const allReviews: ReviewProps[] = books.map(book => {
       if (book.review && book.review.length > 0) {
         return {id: book.id, review: book.review};
       }
