@@ -67,7 +67,7 @@ const FriendsScreen = () => {
 
   const fetchFriends = () => {
     setLoading(true);
-    fetch('/api/friends/list')
+    fetch('/api/friends')
       .then(res => res.ok ? res.json() : { friends: [], pendingReceived: [], pendingSent: [] })
       .then(data => {
         setFriends(data.friends ?? []);
@@ -84,7 +84,7 @@ const FriendsScreen = () => {
     setAdding(true);
     setMessage('');
     try {
-      const res = await fetch('/api/friends/request', {
+      const res = await fetch('/api/friends?action=request', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ addresseeUsername: addUsername.trim() }),
@@ -106,7 +106,7 @@ const FriendsScreen = () => {
   };
 
   const handleRespond = async (friendshipId: string, action: 'accepted' | 'declined') => {
-    await fetch('/api/friends/respond', {
+    await fetch('/api/friends?action=respond', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ friendshipId, action }),
