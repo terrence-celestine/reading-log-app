@@ -69,7 +69,6 @@ return (
             active={activeTab === 'recs'} 
             onClick={() => { setSelectedBookId(null); setActiveTab('recs'); }} 
             />
-          // add to sidebar nav under Library section
           <SidebarItem
             icon={<NotebookPen size={16} />}
             label="My notes"
