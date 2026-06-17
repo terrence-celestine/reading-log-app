@@ -1,7 +1,6 @@
 // src/components/BottomNav.tsx
 import { Plus, Users, User, BookOpen, BarChart2} from 'lucide-react';
-
-type NavTab = 'library' | 'stats' | 'friends' | 'profile' | 'recs';
+import type { NavTab } from '../types';
 
 interface BottomNavProps {
   activeTab: NavTab;

@@ -237,7 +237,7 @@ const FriendsScreen = () => {
 
               {friend.currentlyReading ? (
                 <div className="flex gap-3 bg-[#F7F5F0] rounded-xl p-3">
-                  <div className="w-8 h-12 rounded bg-[#EEEDFE] flex-shrink-0 flex items-center justify-center overflow-hidden">
+                  <div className="w-8 h-12 rounded bg-[#EEEDFE] shrink-0 flex items-center justify-center overflow-hidden">
                     {friend.currentlyReading.coverUrl ? (
                       <img src={friend.currentlyReading.coverUrl} alt="" className="w-full h-full object-cover" />
                     ) : (

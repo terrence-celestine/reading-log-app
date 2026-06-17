@@ -8,13 +8,13 @@ import LibraryScreen from '../screens/LibraryScreen';
 import BookDetailScreen from '../screens/BookDetailScreen';
 import AddBookSheet from '../screens/AddBookSheet';
 import { useAddBook } from '@/hooks/useAddBook';
-import { BookOpen, BarChart2, Users, User, Plus, Sparkles } from 'lucide-react';
+import { BookOpen, BarChart2, Users, User, Plus, Sparkles, NotebookPen } from 'lucide-react';
 import SidebarItem from './SidebarItem';
 import { useAuth } from '../context/AuthContext';
 import FriendsScreen from '@/screens/FriendsScreen';
 import RecsScreen from '@/screens/RecsScreens';
-
-type NavTab = 'library' | 'stats' | 'friends' | 'profile' | 'recs';
+import NotesScreen from '@/screens/NotesScreen';
+import type { NavTab } from '../types';
 
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('library');
@@ -34,6 +34,7 @@ const AppLayout = () => {
       case 'library': return <LibraryScreen onBookSelect={handleBookSelect} />;
       case 'friends': return <FriendsScreen />;
       case 'recs': return <RecsScreen />;
+      case 'notes': return <NotesScreen />;
       default: return <HomeScreen onBookSelect={handleBookSelect} />;
     }
   };
@@ -68,6 +69,13 @@ return (
             active={activeTab === 'recs'} 
             onClick={() => { setSelectedBookId(null); setActiveTab('recs'); }} 
             />
+          // add to sidebar nav under Library section
+          <SidebarItem
+            icon={<NotebookPen size={16} />}
+            label="My notes"
+            active={activeTab === 'notes'}
+            onClick={() => { setSelectedBookId(null); setActiveTab('notes'); }}
+          />
         </nav>
   
         {/* Sidebar bottom — add book + user + logout */}
