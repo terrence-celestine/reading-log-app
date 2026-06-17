@@ -42,7 +42,9 @@ const MoreSheet = ({ open, onClose, onNavigate, notificationCount }: Props) => {
             </button>
           </div>
 
-          {ITEMS.map(item => (
+          {ITEMS.map(item => {
+            const showBadge = item.tab === 'notifications' && notificationCount > 0;
+            return (
             <button
               key={item.tab}
               onClick={() => { onNavigate(item.tab); onClose(); }}
@@ -50,14 +52,13 @@ const MoreSheet = ({ open, onClose, onNavigate, notificationCount }: Props) => {
             >
               <span className="text-[#888780]">{item.icon}</span>
               <span className="flex-1">{item.label}</span>
-                {item.tab === 'notifications' && notificationCount > 0 && (
+                {showBadge && (
                 <span className="bg-[#2C2C2A] text-[#F7F5F0] text-[10px] font-medium px-1.5 py-0.5 rounded-full">
                     {notificationCount}
                 </span>
                 )}
-            </button>
-          ))}
-
+            </button>)}
+          )}
         </div>
       </div>
     </>

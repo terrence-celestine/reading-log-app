@@ -118,7 +118,7 @@ return (
       {/* Main content — offset by sidebar width on desktop */}
       <div className="flex-1 flex flex-col md:ml-52">
         <SyncStatus />
-        <TopBar />
+        <TopBar notificationCount={notificationCount} onBellPress={() => setMoreSheetOpen(true)} />
         <main className="flex-1 overflow-y-auto pb-24 md:pb-6 max-w-screen-sm mx-auto w-full">
           {renderScreen()}
         </main>
