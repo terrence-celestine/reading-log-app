@@ -122,7 +122,7 @@ const FriendsScreen = () => {
         <h1 className="text-[15px] font-medium text-[#2C2C2A]">Friends</h1>
         <button
           onClick={() => setShowAddInput(!showAddInput)}
-          className="flex items-center gap-1.5 bg-[#2C2C2A] text-[#F7F5F0] text-[11px] font-medium px-3 py-1.5 rounded-full"
+          className="flex items-center gap-1.5 bg-[#2C2C2A] text-[#F7F5F0] text-[11px] font-medium px-3 py-1.5 rounded-full hover:cursor-pointer"
         >
           <UserPlus size={13} />
           Add friend
@@ -144,14 +144,14 @@ const FriendsScreen = () => {
             <button
               onClick={handleAddFriend}
               disabled={adding}
-              className="bg-[#2C2C2A] disabled:bg-[#C8C5BE] text-[#F7F5F0] text-[12px] font-medium px-4 py-2 rounded-xl flex items-center gap-1.5"
+              className="bg-[#2C2C2A] disabled:bg-[#C8C5BE] text-[#F7F5F0] text-[12px] font-medium px-4 py-2 rounded-xl flex items-center gap-1.5 hover:cursor-pointer"
             >
               <Check size={13} />
               Send
             </button>
             <button
               onClick={() => { setShowAddInput(false); setAddUsername(''); setMessage(''); }}
-              className="text-[#B4B2A9] px-2"
+              className="text-[#B4B2A9] px-2 hover:cursor-pointer"
             >
               <X size={16} />
             </button>
@@ -296,13 +296,13 @@ const FriendsScreen = () => {
                 <button
                     onClick={() => handleSendRec(friend.userId)}
                     disabled={!recBookId}
-                    className="flex-1 bg-[#2C2C2A] disabled:bg-[#C8C5BE] text-[#F7F5F0] text-[12px] font-medium py-2 rounded-xl"
+                    className="flex-1 bg-[#2C2C2A] disabled:bg-[#C8C5BE] text-[#F7F5F0] text-[12px] font-medium py-2 rounded-xl hover:cursor-pointer"
                 >
                     Send rec
                 </button>
                 <button
                     onClick={() => { setSendingRec(null); setRecBookId(''); setRecMessage(''); }}
-                    className="bg-[#EDEAE2] text-[#5F5E5A] text-[12px] font-medium px-4 py-2 rounded-xl"
+                    className="bg-[#EDEAE2] text-[#5F5E5A] text-[12px] font-medium px-4 py-2 rounded-xl hover:cursor-pointer"
                 >
                     Cancel
                 </button>
@@ -311,7 +311,7 @@ const FriendsScreen = () => {
             ) : (
             <button
                 onClick={() => setSendingRec(friend.userId)}
-                className="w-full bg-[#EDEAE2] text-[#2C2C2A] text-[12px] font-medium py-2 rounded-xl flex items-center justify-center gap-2"
+                className="w-full bg-[#EDEAE2] text-[#2C2C2A] text-[12px] font-medium py-2 rounded-xl flex items-center justify-center gap-2 hover:cursor-pointer"
             >
                 <Send size={13} />
                 {recSent === friend.userId ? 'Rec sent ✓' : 'Recommend a book'}
