@@ -2,9 +2,9 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import jwt from 'jsonwebtoken';
 import cookie from 'cookie';
-import { neon } from '@neondatabase/serverless';
+import { neon } from '@neondatabase/serverless';  
 import { drizzle } from 'drizzle-orm/neon-http';
-import * as schema from '../../src/lib/schema';
+import * as schema from '../../src/lib/schema.js';
 import { eq, and } from 'drizzle-orm';
 
 const sql = neon(process.env.DATABASE_URL!);
