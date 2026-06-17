@@ -74,7 +74,7 @@ const NotificationsScreen = () => {
       <div className="flex flex-col gap-3">
         {notifications.map(n => (
           <div key={n.id} className="bg-[#FDFCF9] border border-[#E8E5DE] rounded-2xl p-4 flex items-start gap-3">
-            <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center ${BG_MAP[n.type]}`}>
+            <div className={`w-8 h-8 rounded-full shrink-0 flex items-center justify-center ${BG_MAP[n.type]}`}>
               {ICON_MAP[n.type]}
             </div>
             <div className="flex-1 min-w-0">

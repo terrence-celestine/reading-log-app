@@ -76,7 +76,7 @@ const LibraryScreen = ({ onBookSelect }: { onBookSelect: (id: string) => void })
               }`}
           >
             {f.label}
-            <span className={`text-[10px] w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0
+            <span className={`text-[10px] w-5 h-5 rounded-full flex items-center justify-center shrink-0
               ${activeFilter === f.value ? 'bg-white/20 text-white' : 'bg-[#EDEAE2] text-[#888780]'}`}>
               {counts[f.value]}
             </span>
