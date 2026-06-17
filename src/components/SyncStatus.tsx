@@ -1,9 +1,11 @@
 import { useSyncStore } from '../lib/syncManager';
 import { RefreshCw, CheckCircle2 } from 'lucide-react';
 
-export const SyncStatus = () => {
+const SyncStatus = () => {
   const { isSyncing } = useSyncStore();
 
+  if (!isSyncing) return null;
+  
   return (
     <div className="fixed top-4 right-4 z-50">
       <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${
@@ -24,3 +26,5 @@ export const SyncStatus = () => {
     </div>
   );
 };
+
+export default SyncStatus;
