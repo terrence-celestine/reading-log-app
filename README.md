@@ -12,10 +12,15 @@ Live: [reading-log-app-ebon.vercel.app](https://reading-log-app-ebon.vercel.app)
 - **Local-first architecture** — Instant read/write via IndexedDB (Dexie.js), synced to Neon in the background
 - **Custom JWT auth** — Roll-your-own register/login/logout with bcrypt password hashing and HTTP-only cookies
 - **Gemini AI enrichment** — Cover art, page counts, and spoiler-free summaries fetched automatically when you add a book
-- **Friends system** — Send/accept friend requests, view friends' reading activity in real time
+- **Friends system** — Send/accept friend requests, view friends' reading activity in real time, pending request UI
 - **Book recommendations** — Recommend books to friends with a personal message; add them to your library in one tap
 - **Bidirectional sync** — Dexie tombstone pattern syncs to Neon on every change; pulls from Neon on login
-- **Book reviews & ratings** — Write a review and rate books you've finished, persisted locally and in the cloud
+- **Book reviews & ratings** — Write a review and rate finished books with a 5-star system
+- **Notes & quotes** — Add notes or quotes to any book with optional page numbers; view all notes in a dedicated screen
+- **Reading streak** — Tracks consecutive days with reading sessions; displayed with a live count
+- **Stats dashboard** — Total books, pages read, completion rate, library breakdown, 7-day activity chart, top authors, notes stats
+- **Notifications** — Real-time badge count for friend requests, accepted requests, and book recommendations
+- **Consolidated API** — 7 serverless functions (down from 13) using method + action routing to stay within Vercel's free tier
 
 ---
 
@@ -47,12 +52,12 @@ sequenceDiagram
     participant API as Vercel API
     participant Neon as Neon Postgres
 
-    Browser->>API: POST /api/auth/register { email, username, password }
+    Browser->>API: POST /api/auth?action=register { email, username, password }
     API->>API: bcrypt.hash(password, 12)
     API->>Neon: INSERT INTO users
     API->>API: jwt.sign({ userId, email })
     API-->>Browser: Set-Cookie: token (HTTP-only)
-    Browser->>API: GET /api/auth/me
+    Browser->>API: GET /api/auth
     API->>API: jwt.verify(cookie.token)
     API-->>Browser: { userId, email, username }
 ```
@@ -94,7 +99,7 @@ sequenceDiagram
 - Vercel Serverless Functions (`@vercel/node`)
 - Neon serverless Postgres
 - Drizzle ORM
-- bcryptjs + jsonwebtoken
+- bcryptjs + jsonwebtoken + cookie
 - `@neondatabase/serverless`
 
 **AI**
@@ -104,15 +109,45 @@ sequenceDiagram
 
 ---
 
+## 📱 Screens
+
+| Screen          | Description                                                   |
+| --------------- | ------------------------------------------------------------- |
+| Home            | Greeting, now reading card, stats strip, library preview      |
+| Library         | Full book list with search + status filters                   |
+| Book Detail     | Progress update, rating, review, notes & quotes               |
+| Stats           | Books, pages, streak, breakdown bar, 7-day chart, top authors |
+| Friends         | Friend requests, activity feed, send book recs                |
+| Recommendations | Books recommended by friends, add to library                  |
+| My Notes        | All notes and quotes across your library                      |
+| Notifications   | Friend requests, accepted requests, new recs with badge count |
+| Profile         | User info + sign out                                          |
+
+---
+
 ## 🗄️ Database Schema
 
 ```sql
-users          -- id, email, username, password_hash, created_at
-books          -- id, user_id, title, author, status, pages_read, total_pages,
-               -- cover_url, summary, isbn, metadata_status, deleted, created_at, updated_at
-friendships    -- id, requester_id, addressee_id, status (pending|accepted|declined), created_at
+users                -- id, email, username, password_hash, created_at
+books                -- id, user_id, title, author, status, pages_read, total_pages,
+                     -- cover_url, summary, isbn, metadata_status, deleted, created_at, updated_at
+friendships          -- id, requester_id, addressee_id, status (pending|accepted|declined), created_at
 book_recommendations -- id, from_user_id, to_user_id, book_id, message, created_at
 ```
+
+---
+
+## 🔌 API Routes
+
+| Endpoint                  | Methods   | Description                                  |
+| ------------------------- | --------- | -------------------------------------------- |
+| `/api/auth`               | GET, POST | me, login, register, logout (action param)   |
+| `/api/books/sync`         | GET, POST | pull from / push to Neon                     |
+| `/api/friends`            | GET, POST | list, send request, respond (action param)   |
+| `/api/recs`               | GET, POST | list received, send recommendation           |
+| `/api/notifications/list` | GET       | friend requests, accepted, recs unified feed |
+| `/api/enrich-book`        | POST      | Gemini AI enrichment                         |
+| `/api/recommend-books`    | POST      | Gemini AI recommendations                    |
 
 ---
 
@@ -181,3 +216,15 @@ If `gemini-2.5-flash` returns a 429 or 503, the server automatically retries wit
 ### 5. Drizzle ORM over raw SQL
 
 Drizzle provides type-safe queries and a schema-as-code approach that makes the data model readable and maintainable. The schema file doubles as documentation for the database structure.
+
+### 6. Consolidated Serverless Functions
+
+Merged 13 API files into 7 using method + query parameter routing (`?action=login`, `?action=register`). This keeps the app within Vercel's free tier 12-function limit while maintaining clean separation of concerns.
+
+### 7. Reading Sessions for Streak Tracking
+
+Every page update writes a session record to Dexie with a timestamp. The streak is calculated client-side by finding consecutive days with at least one session — no server round-trip needed.
+
+### 8. localStorage for Notification State
+
+Rather than storing read/unread state in the database, `lastCheckedNotifications` is stored in localStorage. When the notifications screen is opened, the timestamp updates and the badge clears. Simple, zero-latency, no extra API calls.
