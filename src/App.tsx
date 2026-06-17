@@ -2,9 +2,6 @@ import { TooltipProvider } from './components/ui/tooltip';
 import AppLayout from './components/AppLayout';
 import { useSyncWorker } from './hooks/useSyncWorker';
 import { Toaster } from 'sonner';
-import { NotesSidebar } from './components/NotesSidebar';
-import { ReviewModal } from './components/ReviewModal';
-import { ReviewNotesSidebar } from './components/ReviewNotesSidebar';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import AuthScreen from './screens/AuthScreen';
 import { useSyncToNeon } from './hooks/useSyncToNeon';
@@ -31,9 +28,6 @@ const App = () => {
       <AuthProvider>
         <AppContent />
       </AuthProvider>
-      <NotesSidebar />
-      <ReviewNotesSidebar />
-      <ReviewModal />
       <Toaster richColors position="bottom-right" />
     </TooltipProvider>
   );

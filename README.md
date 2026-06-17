@@ -1,56 +1,118 @@
-Here is a comprehensive, highly polished breakdown for your new GitHub `README.md`. It highlights your modern tech stack (Vite 6, React 19, Tailwind v4), showcases the **local-first architecture**, explains the **Gemini AI integration**, and documents your engineering decisions.
+# 📚 ReadLog
 
----
+A full-stack, mobile-first reading tracker built with **React 19**, **Vite 6**, and **Dexie.js**, enriched with **Google Gemini 2.5 AI** and backed by **Neon serverless Postgres** with a custom JWT auth system.
 
-# Draft: `README.md`
-
-```markdown
-# 📚 My Reading Log
-
-A high-performance, local-first reading tracker built with **React 19**, **Vite 6**, and **Dexie.js (IndexedDB)**, enriched with **Google Gemini 2.5 AI** for book summaries and personalized recommendations.
+Live: [reading-log-app-ebon.vercel.app](https://reading-log-app-ebon.vercel.app)
 
 ---
 
 ## ⚡ Key Features
 
-*   **Local-First Architecture:** Instant read/write speeds and full offline capability. Your library is persisted locally using IndexedDB via Dexie.js.
-*   **Gemini AI Book Enrichment:** When you add a book, a background worker calls Gemini to fetch a 2-3 sentence spoiler-free summary and ISBN, then resolves a high-quality cover image via the Open Library Covers API.
-*   **AI "Next Read" Recommendations:** Analyzes your finished books and uses Gemini 2.5 to recommend 3 highly personalized books, complete with page counts, descriptions, and custom reasoning.
-*   **Tombstone Sync Pattern:** Implemented soft-deletion (`deleted: true`) and a session sync manager, preparing the local-first database for seamless cloud synchronization.
-*   **Polished Dark UX:** A gorgeous, fully responsive dark-mode UI styled with Tailwind CSS v4, complete with smooth transitions, loading skeletons, and interactive progress tracking.
+- **Mobile-first UI** — Bottom nav + FAB on mobile, responsive sidebar on desktop
+- **Local-first architecture** — Instant read/write via IndexedDB (Dexie.js), synced to Neon in the background
+- **Custom JWT auth** — Roll-your-own register/login/logout with bcrypt password hashing and HTTP-only cookies
+- **Gemini AI enrichment** — Cover art, page counts, and spoiler-free summaries fetched automatically when you add a book
+- **Friends system** — Send/accept friend requests, view friends' reading activity in real time
+- **Book recommendations** — Recommend books to friends with a personal message; add them to your library in one tap
+- **Bidirectional sync** — Dexie tombstone pattern syncs to Neon on every change; pulls from Neon on login
+- **Book reviews & ratings** — Write a review and rate books you've finished, persisted locally and in the cloud
 
 ---
 
 ## 🏗️ Architecture & Data Flow
 
-To protect your Gemini API key and bypass CORS restrictions, the application utilizes a secure serverless proxy architecture:
+### AI Enrichment Flow
 
 ```mermaid
 sequenceDiagram
-    participant Browser as React Client (Vite)
-    participant Serverless as Vercel Serverless (Node.js)
-    participant Gemini as Gemini API (Google)
+    participant Browser as React Client
+    participant Serverless as Vercel Serverless
+    participant Gemini as Gemini 2.5 API
     participant OpenLibrary as Open Library API
 
     Browser->>Serverless: POST /api/enrich-book { title, author }
-    Note over Serverless: Securely reads GEMINI_API_KEY from process.env
-    Serverless->>Gemini: Request summary & ISBN (Gemini 2.5)
+    Serverless->>Gemini: Request summary & ISBN (flash → flash-lite fallback)
     Gemini-->>Serverless: Return structured JSON
     Serverless->>OpenLibrary: Resolve cover image URL
-    OpenLibrary-->>Serverless: Return cover image URL
-    Serverless-->>Browser: Return enriched book metadata
+    OpenLibrary-->>Serverless: Return cover URL
+    Serverless-->>Browser: Return enriched metadata
+    Browser->>Browser: Update Dexie + sync to Neon
+```
+
+### Auth Flow
+
+```mermaid
+sequenceDiagram
+    participant Browser as React Client
+    participant API as Vercel API
+    participant Neon as Neon Postgres
+
+    Browser->>API: POST /api/auth/register { email, username, password }
+    API->>API: bcrypt.hash(password, 12)
+    API->>Neon: INSERT INTO users
+    API->>API: jwt.sign({ userId, email })
+    API-->>Browser: Set-Cookie: token (HTTP-only)
+    Browser->>API: GET /api/auth/me
+    API->>API: jwt.verify(cookie.token)
+    API-->>Browser: { userId, email, username }
+```
+
+### Sync Flow
+
+```mermaid
+sequenceDiagram
+    participant Dexie as Dexie (IndexedDB)
+    participant Hook as useSyncToNeon
+    participant API as /api/books/sync
+    participant Neon as Neon Postgres
+
+    Dexie->>Hook: useLiveQuery fires on change
+    Hook->>Hook: debounce 2s
+    Hook->>API: POST { books[] }
+    API->>Neon: INSERT ... ON CONFLICT DO UPDATE
+    Note over Hook: On login — pull from Neon
+    API->>Neon: SELECT books WHERE userId
+    Neon-->>API: books[]
+    API-->>Hook: books[]
+    Hook->>Dexie: db.books.add() for missing books
 ```
 
 ---
 
 ## 🛠️ Tech Stack
 
-*   **Frontend:** React 19 (SPA), TypeScript, Vite 6
-*   **Styling:** Tailwind CSS v4 (using the `@tailwindcss/vite` plugin)
-*   **Database:** Dexie.js (IndexedDB wrapper) with `dexie-react-hooks` for reactive UI state
-*   **AI Integration:** `@google/generative-ai` (Gemini 2.5 Flash & Flash-Lite fallback)
-*   **Backend/Hosting:** Vercel Serverless Functions (`@vercel/node`)
-*   **Icons & Notifications:** Lucide React, Sonner (Toasts)
+**Frontend**
+
+- React 19 + TypeScript
+- Vite 6
+- Tailwind CSS v4
+- Dexie.js + dexie-react-hooks (IndexedDB)
+- Lucide React, Sonner (toasts)
+
+**Backend**
+
+- Vercel Serverless Functions (`@vercel/node`)
+- Neon serverless Postgres
+- Drizzle ORM
+- bcryptjs + jsonwebtoken
+- `@neondatabase/serverless`
+
+**AI**
+
+- Google Gemini 2.5 Flash (flash-lite fallback on 429/503)
+- Open Library Covers API
+
+---
+
+## 🗄️ Database Schema
+
+```sql
+users          -- id, email, username, password_hash, created_at
+books          -- id, user_id, title, author, status, pages_read, total_pages,
+               -- cover_url, summary, isbn, metadata_status, deleted, created_at, updated_at
+friendships    -- id, requester_id, addressee_id, status (pending|accepted|declined), created_at
+book_recommendations -- id, from_user_id, to_user_id, book_id, message, created_at
+```
 
 ---
 
@@ -58,51 +120,64 @@ sequenceDiagram
 
 ### Prerequisites
 
-*   Node.js (v18 or higher)
-*   An API Key from [Google AI Studio](https://aistudio.google.com/)
-*   Vercel CLI (for local serverless function development)
-    ```bash
-    npm install -g vercel
-    ```
+- Node.js v18+
+- A [Google AI Studio](https://aistudio.google.com/) API key
+- A [Neon](https://neon.tech) database
+- Vercel CLI: `npm install -g vercel`
 
 ### Installation
 
-1. Clone the repository:
-    ```bash
-    git clone https://github.com/your-username/my-reading-log.git
-    cd my-reading-log
-    ```
+```bash
+git clone https://github.com/terrence-celestine/reading-log-app.git
+cd reading-log-app
+npm install
+```
 
-2. Install dependencies:
-    ```bash
-    npm install
-    ```
+### Environment Variables
 
-3. Configure environment variables. Create a `.env` file in the root directory:
-    ```env
-    GEMINI_API_KEY=your_gemini_api_key_here
-    ```
+Create `.env` and `.env.local` in the root:
 
-### Running Locally
+```env
+DATABASE_URL=your_neon_connection_string
+VITE_DATABASE_URL=your_neon_connection_string
+JWT_SECRET=your_32_char_secret
+GEMINI_API_KEY=your_gemini_api_key
+```
 
-To run both the Vite frontend and the Vercel Serverless API routes simultaneously, use the Vercel development command:
+### Push schema to Neon
+
+```bash
+npx drizzle-kit push
+```
+
+### Run locally
 
 ```bash
 vercel dev
 ```
 
-Your app will be available at **`http://localhost:3000`**.
+App available at `http://localhost:3000`
 
 ---
 
 ## 🧠 Engineering Decisions
 
-### 1. Local-First with Background AI Enrichment
-To ensure an instant, lag-free user experience, books are added to IndexedDB immediately with a `metadataStatus: 'pending'` state. The frontend does not block on the AI request; instead, a background worker triggers the Gemini enrichment asynchronously. Once resolved, the local database is updated, and Dexie's reactive `useLiveQuery` hook automatically updates the card UI with the new cover and summary.
+### 1. Custom JWT Auth over Clerk/Auth0
 
-### 2. Serverless Proxy for API Key Security
-Calling the Gemini API directly from the browser exposes your API key in the client-side bundle and triggers CORS browser blocks. We routed all Gemini calls through Vercel Serverless Functions (`/api/enrich-book` and `/api/recommend-books`), keeping the API key completely hidden on the server-side and bypassing CORS.
+Built a complete auth system from scratch using bcrypt + JWT + HTTP-only cookies. This demonstrates full understanding of the auth lifecycle — password hashing, token signing, secure cookie storage, and protected API routes — rather than delegating it to a third party service.
 
-### 3. Resilient Model Fallback Chain
-To handle temporary Google AI Studio rate limits (`429`) or server spikes (`503`), our backend implements an automatic fallback chain. If `gemini-2.5-flash` fails, the server instantly falls back to `gemini-2.5-flash-lite` to ensure high availability and prevent user-facing errors.
-```
+### 2. Local-first with Cloud Sync
+
+Books are written to IndexedDB instantly for zero-latency UI updates. A debounced background hook (`useSyncToNeon`) pushes changes to Neon 2 seconds after the last update using an upsert pattern (`ON CONFLICT DO UPDATE`). On login, the app pulls from Neon and merges any missing books into Dexie.
+
+### 3. Tombstone Soft-Delete Pattern
+
+Books are never hard-deleted. Instead, `deleted: true` is set locally and synced to Neon. This enables safe conflict resolution during sync and preserves data integrity across devices.
+
+### 4. Resilient AI Fallback Chain
+
+If `gemini-2.5-flash` returns a 429 or 503, the server automatically retries with `gemini-2.5-flash-lite`, ensuring enrichment succeeds even under rate limiting.
+
+### 5. Drizzle ORM over raw SQL
+
+Drizzle provides type-safe queries and a schema-as-code approach that makes the data model readable and maintainable. The schema file doubles as documentation for the database structure.

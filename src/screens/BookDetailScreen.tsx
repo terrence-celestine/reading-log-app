@@ -1,7 +1,7 @@
 // src/screens/BookDetailScreen.tsx
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { ArrowLeft, BookOpen, Trash2, Check } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { useDeleteBook } from '../hooks/useDeleteBook';
@@ -29,7 +29,18 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
   const { updatePages } = useUpdateProgress();
   const { deleteBook } = useDeleteBook();
   const [pageInput, setPageInput] = useState('');
+  const [review, setReview] = useState('');
+  const [rating, setRating] = useState(0);
+  const [saved, setSaved] = useState(false);
 
+  useEffect(() => {
+    if (book) {
+      setReview(book.review ?? '');
+      setRating(book.rating ?? 0);
+    }
+  }, [book]);
+  
+  
   if (!book) return (
     <div className="flex items-center justify-center h-48">
       <div className="text-sm text-[#888780]">Loading...</div>
@@ -54,6 +65,12 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
   const handleDelete = async () => {
     await deleteBook(book.id);
     onBack();
+  };
+
+  const handleSaveReview = async () => {
+    await db.books.update(book.id, { review, rating });
+    setSaved(true);
+    setTimeout(() => setSaved(false), 2000);
   };
 
   return (
@@ -147,7 +164,41 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
             </button>
           </div>
         )}
+      {/* Review & Rating — only show when finished */}
+      {book.status === 'finished' && (
+        <div className="bg-[#FDFCF9] px-4 py-4 flex flex-col gap-3">
+          <p className="text-[10px] font-medium text-[#888780] uppercase tracking-wider">Your rating</p>
+          <div className="flex gap-2">
+            {[1, 2, 3, 4, 5].map(star => (
+              <button
+                key={star}
+                onClick={() => setRating(star)}
+                className={`text-2xl transition-colors ${
+                  star <= rating ? 'text-[#BA7517]' : 'text-[#E8E5DE]'
+                }`}
+              >
+                ★
+              </button>
+            ))}
+          </div>
 
+          <p className="text-[10px] font-medium text-[#888780] uppercase tracking-wider mt-1">Your review</p>
+          <textarea
+            value={review}
+            onChange={e => setReview(e.target.value)}
+            placeholder="What did you think of this book?"
+            rows={4}
+            className="bg-[#F0EDE6] border border-[#E0DDD6] rounded-xl px-3 py-2.5 text-[13px] text-[#2C2C2A] placeholder:text-[#B4B2A9] outline-none focus:border-[#C8C5BE] resize-none"
+          />
+
+          <button
+            onClick={handleSaveReview}
+            className="w-full bg-[#2C2C2A] text-[#F7F5F0] text-[13px] font-medium py-2.5 rounded-xl transition-colors"
+          >
+            {saved ? 'Saved ✓' : 'Save review'}
+          </button>
+        </div>
+      )}
       </div>
     </div>
   );
