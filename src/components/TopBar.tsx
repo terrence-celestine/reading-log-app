@@ -1,5 +1,5 @@
 // src/components/TopBar.tsx
-import { BookOpen, Search, Bell } from 'lucide-react';
+import { BookOpen, Bell } from 'lucide-react';
 
 interface TopBarProps {
   title?: string;
@@ -19,7 +19,6 @@ const TopBar = ({ title }: TopBarProps) => {
         </div>
       )}
       <div className="flex items-center gap-3 text-[#5F5E5A]">
-        <Search size={18} />
         <Bell size={18} />
       </div>
     </header>

@@ -2,12 +2,13 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { useMemo } from 'react';
-import { BookOpen } from 'lucide-react';
+import { BookOpen, Zap } from 'lucide-react';
 import BookCard from '@/components/BookCard';
+import { useStreak } from '../hooks/useStreak';
 
 const HomeScreen = ({ onBookSelect }: { onBookSelect: (id: string) => void }) => {
   const books = useLiveQuery(() => db.books.toArray());
-
+  const streak = useStreak();
   const { total, finished, nowReading } = useMemo(() => {
     if (!books) return { total: 0, finished: 0, reading: 0, nowReading: null };
     const active = books.filter(b => !b.deleted);
@@ -33,7 +34,8 @@ const HomeScreen = ({ onBookSelect }: { onBookSelect: (id: string) => void }) =>
       <div className="flex items-center justify-between pt-2">
         <h1 className="text-[15px] font-medium text-[#2C2C2A]">{getGreeting()} 👋</h1>
         <span className="flex items-center gap-1 bg-[#FAEEDA] text-[#633806] text-[11px] font-medium px-3 py-1 rounded-full">
-          🔥 1 day streak
+          <Zap size={11} />
+          {streak} day{streak !== 1 ? 's' : ''} streak
         </span>
       </div>
 

@@ -13,12 +13,14 @@ export const useUpdateProgress = () => {
     });
 
     // 3. Log the "Sprint" in the Sessions table (for history/sync)
-    await db.sessions.add({
-      bookId: id,
-      pagesRead: newPages, // Log only the amount changed
-      date: new Date().toISOString(),
-      syncedToCloud: 0
-    });
+    if (delta > 0) {
+      await db.sessions.add({
+        bookId: id,
+        pagesRead: delta,
+        date: new Date().toISOString(),
+        syncedToCloud: 0
+      });
+    }
   };
 
   return { updatePages };

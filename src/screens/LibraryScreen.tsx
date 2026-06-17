@@ -51,7 +51,7 @@ const LibraryScreen = ({ onBookSelect }: { onBookSelect: (id: string) => void })
         <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#B4B2A9]" />
         <input
           type="text"
-          placeholder="Search title or author…"
+          placeholder="Filter by book title or author…"
           value={searchTerm}
           onChange={e => setSearchTerm(e.target.value)}
           className="w-full pl-9 pr-8 py-2.5 bg-[#FDFCF9] border border-[#E8E5DE] rounded-xl text-[13px] text-[#2C2C2A] placeholder:text-[#B4B2A9] outline-none focus:border-[#C8C5BE]"
@@ -69,14 +69,14 @@ const LibraryScreen = ({ onBookSelect }: { onBookSelect: (id: string) => void })
           <button
             key={f.value}
             onClick={() => setActiveFilter(f.value)}
-            className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors
+            className={`shrink-0 flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium border transition-colors hover:cursor-pointer
               ${activeFilter === f.value
                 ? 'bg-[#2C2C2A] text-[#F7F5F0] border-[#2C2C2A]'
                 : 'bg-[#FDFCF9] text-[#888780] border-[#E8E5DE]'
               }`}
           >
             {f.label}
-            <span className={`text-[10px] px-1 py-0 rounded-full
+            <span className={`text-[10px] w-5 h-5 rounded-full flex items-center justify-center flex-shrink-0
               ${activeFilter === f.value ? 'bg-white/20 text-white' : 'bg-[#EDEAE2] text-[#888780]'}`}>
               {counts[f.value]}
             </span>

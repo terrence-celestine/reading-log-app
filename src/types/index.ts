@@ -65,4 +65,4 @@ export type FeedItem = {
     author?: string;
 }
 
-export type NavTab = 'library' | 'stats' | 'friends' | 'profile' | 'recs' | 'notes';
+export type NavTab = 'library' | 'stats' | 'friends' | 'profile' | 'recs' | 'notes' | 'notifications';

@@ -8,13 +8,16 @@ import LibraryScreen from '../screens/LibraryScreen';
 import BookDetailScreen from '../screens/BookDetailScreen';
 import AddBookSheet from '../screens/AddBookSheet';
 import { useAddBook } from '@/hooks/useAddBook';
-import { BookOpen, BarChart2, Users, User, Plus, Sparkles, NotebookPen } from 'lucide-react';
+import { BookOpen, BarChart2, Users, User, Plus, Sparkles, NotebookPen, Bell } from 'lucide-react';
 import SidebarItem from './SidebarItem';
 import { useAuth } from '../context/AuthContext';
 import FriendsScreen from '@/screens/FriendsScreen';
 import RecsScreen from '@/screens/RecsScreens';
 import NotesScreen from '@/screens/NotesScreen';
+import MoreSheet from './MoreSheet';
 import type { NavTab } from '../types';
+import NotificationsScreen from '@/screens/NotificationScreen';
+import { useNotificationCount } from '@/hooks/useNotificationCount';
 
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('library');
@@ -25,6 +28,9 @@ const AppLayout = () => {
   const handleBack = () => setSelectedBookId(null);
   const { addBook } = useAddBook();
   const { user, logout } = useAuth();
+  const notificationCount = useNotificationCount();
+  // add state
+  const [moreSheetOpen, setMoreSheetOpen] = useState(false);
 
   const renderScreen = () => {
     if (selectedBookId) {
@@ -35,6 +41,7 @@ const AppLayout = () => {
       case 'friends': return <FriendsScreen />;
       case 'recs': return <RecsScreen />;
       case 'notes': return <NotesScreen />;
+      case 'notifications': return <NotificationsScreen />;
       default: return <HomeScreen onBookSelect={handleBookSelect} />;
     }
   };
@@ -75,13 +82,20 @@ return (
             active={activeTab === 'notes'}
             onClick={() => { setSelectedBookId(null); setActiveTab('notes'); }}
           />
+          <SidebarItem
+            icon={<Bell size={16} />}
+            label="Notifications"
+            active={activeTab === 'notifications'}
+            onClick={() => { setSelectedBookId(null); setActiveTab('notifications'); }}
+            badge={notificationCount}
+          />
         </nav>
   
         {/* Sidebar bottom — add book + user + logout */}
         <div className="p-3 border-t border-[#E8E5DE] flex flex-col gap-2">
         <button
             onClick={() => setAddBookSheetOpen(true)}
-            className="w-full bg-[#2C2C2A] text-[#F7F5F0] text-[12px] font-medium py-2.5 rounded-xl flex items-center justify-center gap-2"
+            className="w-full bg-[#2C2C2A] text-[#F7F5F0] text-[12px] font-medium py-2.5 rounded-xl flex items-center justify-center gap-2 hover:cursor-pointer"
         >
             <Plus size={14} />
             Add book
@@ -93,7 +107,7 @@ return (
             </div>
             <button
             onClick={logout}
-            className="text-[11px] text-[#888780] hover:text-[#2C2C2A] transition-colors"
+            className="text-[11px] text-[#888780] hover:text-[#2C2C2A] transition-colors hover:cursor-pointer"
             >
             Sign out
             </button>
@@ -115,6 +129,7 @@ return (
         activeTab={activeTab}
         onTabChange={(tab) => { setSelectedBookId(null); setActiveTab(tab); }}
         onFabPress={() => setAddBookSheetOpen(true)}
+        onMorePress={() => setMoreSheetOpen(true)}
       />
   
       <AddBookSheet
@@ -124,6 +139,11 @@ return (
           addBook(title, author, status);
           setAddBookSheetOpen(false);
         }}
+      />
+      <MoreSheet
+        open={moreSheetOpen}
+        onClose={() => setMoreSheetOpen(false)}
+        onNavigate={(tab) => { setSelectedBookId(null); setActiveTab(tab); }}
       />
     </div>
   );
