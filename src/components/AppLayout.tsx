@@ -18,6 +18,7 @@ import MoreSheet from './MoreSheet';
 import type { NavTab } from '../types';
 import NotificationsScreen from '@/screens/NotificationScreen';
 import { useNotificationCount } from '@/hooks/useNotificationCount';
+import StatsScreen from '@/screens/StatsScreen';
 
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('library');
@@ -42,6 +43,7 @@ const AppLayout = () => {
       case 'recs': return <RecsScreen />;
       case 'notes': return <NotesScreen />;
       case 'notifications': return <NotificationsScreen />;
+      case 'stats': return <StatsScreen />;
       default: return <HomeScreen onBookSelect={handleBookSelect} />;
     }
   };
