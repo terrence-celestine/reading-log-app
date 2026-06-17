@@ -16,7 +16,7 @@ const ITEMS: { icon: React.ReactNode; label: string; tab: NavTab }[] = [
   { icon: <Bell size={18} />, label: 'Notifications', tab: 'notifications' },
 ];
 
-const MoreSheet = ({ open, onClose, onNavigate, notificationCount }: Props) => {
+const MoreSheet = ({ open, onClose, onNavigate, notificationCount = 0 }: Props) => {
   if (!open) return null;
 
   return (
@@ -43,7 +43,7 @@ const MoreSheet = ({ open, onClose, onNavigate, notificationCount }: Props) => {
           </div>
 
           {ITEMS.map(item => {
-            const showBadge = item.tab === 'notifications' && notificationCount > 0;
+            const showBadge = item.tab === 'notifications' && (notificationCount ?? 0) > 0;
             return (
             <button
               key={item.tab}
@@ -52,11 +52,11 @@ const MoreSheet = ({ open, onClose, onNavigate, notificationCount }: Props) => {
             >
               <span className="text-[#888780]">{item.icon}</span>
               <span className="flex-1">{item.label}</span>
-                {showBadge && (
-                <span className="bg-[#2C2C2A] text-[#F7F5F0] text-[10px] font-medium px-1.5 py-0.5 rounded-full">
-                    {notificationCount}
+              {showBadge && (
+                <span className="bg-[#2C2C2A] text-[#F7F5F0] text-[10px] font-medium w-5 h-5 rounded-full flex items-center justify-center shrink-0">
+                  {notificationCount}
                 </span>
-                )}
+              )}
             </button>)}
           )}
         </div>
