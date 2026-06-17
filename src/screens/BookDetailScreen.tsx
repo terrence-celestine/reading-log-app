@@ -76,7 +76,7 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
       {/* Cover + title block */}
       <div className="bg-[#FDFCF9] border-b border-[#E8E5DE] px-4 py-5 flex gap-4">
         <div
-          className="w-16 h-24 rounded-xl flex-shrink-0 flex items-center justify-center overflow-hidden"
+          className="w-16 h-24 rounded-xl shrink-0 flex items-center justify-center overflow-hidden"
           style={{ background: color.bg }}
         >
           {book.coverUrl ? (

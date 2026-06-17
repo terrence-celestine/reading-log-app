@@ -8,7 +8,7 @@ import BookCard from '@/components/BookCard';
 const HomeScreen = ({ onBookSelect }: { onBookSelect: (id: string) => void }) => {
   const books = useLiveQuery(() => db.books.toArray());
 
-  const { total, finished, reading, nowReading } = useMemo(() => {
+  const { total, finished, nowReading } = useMemo(() => {
     if (!books) return { total: 0, finished: 0, reading: 0, nowReading: null };
     const active = books.filter(b => !b.deleted);
     return {
@@ -40,7 +40,7 @@ const HomeScreen = ({ onBookSelect }: { onBookSelect: (id: string) => void }) =>
       {/* Now Reading Card */}
       {nowReading ? (
         <div className="bg-[#2C2C2A] rounded-2xl p-4 flex gap-3">
-          <div className="w-12 h-16 rounded-lg bg-[#EEEDFE] flex-shrink-0 flex items-center justify-center overflow-hidden">
+          <div className="w-12 h-16 rounded-lg bg-[#EEEDFE] shrink-0 flex items-center justify-center overflow-hidden">
             {nowReading.coverUrl ? (
               <img src={nowReading.coverUrl} alt={nowReading.title} className="w-full h-full object-cover" />
             ) : (

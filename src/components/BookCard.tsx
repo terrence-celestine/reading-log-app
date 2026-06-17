@@ -37,7 +37,7 @@ const BookCard = ({ book, onClick }: BookCardProps) => {
     >
       {/* Cover */}
       <div
-        className="w-11 h-16 rounded-lg flex-shrink-0 flex items-center justify-center overflow-hidden"
+        className="w-11 h-16 rounded-lg shrink-0 flex items-center justify-center overflow-hidden"
         style={{ background: color.bg }}
       >
         {book.coverUrl ? (
