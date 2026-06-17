@@ -35,7 +35,7 @@ const RecsScreen = () => {
   const books = useLiveQuery(() => db.books.toArray());
 
   useEffect(() => {
-    fetch('/api/recs/list')
+    fetch('/api/recs')
       .then(res => res.ok ? res.json() : [])
       .then(data => setRecs(data))
       .finally(() => setLoading(false));

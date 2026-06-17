@@ -49,7 +49,7 @@ const FriendsScreen = () => {
     const handleSendRec = async (toUserId: string) => {
         if (!recBookId) return;
         try {
-          const res = await fetch('/api/recs/send', {
+          const res = await fetch('/api/recs', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ toUserId, bookId: recBookId, message: recMessage }),
