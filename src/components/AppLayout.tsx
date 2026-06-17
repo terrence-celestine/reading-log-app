@@ -8,9 +8,13 @@ import LibraryScreen from '../screens/LibraryScreen';
 import BookDetailScreen from '../screens/BookDetailScreen';
 import AddBookSheet from '../screens/AddBookSheet';
 import { useAddBook } from '@/hooks/useAddBook';
-import { BookOpen, BarChart2, Users, User, Plus } from 'lucide-react';
+import { BookOpen, BarChart2, Users, User, Plus, Sparkles } from 'lucide-react';
 import SidebarItem from './SidebarItem';
-type NavTab = 'library' | 'stats' | 'friends' | 'profile';
+import { useAuth } from '../context/AuthContext';
+import FriendsScreen from '@/screens/FriendsScreen';
+import RecsScreen from '@/screens/RecsScreens';
+
+type NavTab = 'library' | 'stats' | 'friends' | 'profile' | 'recs';
 
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('library');
@@ -20,6 +24,7 @@ const AppLayout = () => {
   const handleBookSelect = (id: string) => setSelectedBookId(id);
   const handleBack = () => setSelectedBookId(null);
   const { addBook } = useAddBook();
+  const { user, logout } = useAuth();
 
   const renderScreen = () => {
     if (selectedBookId) {
@@ -27,6 +32,8 @@ const AppLayout = () => {
     }
     switch (activeTab) {
       case 'library': return <LibraryScreen onBookSelect={handleBookSelect} />;
+      case 'friends': return <FriendsScreen />;
+      case 'recs': return <RecsScreen />;
       default: return <HomeScreen onBookSelect={handleBookSelect} />;
     }
   };
@@ -55,17 +62,35 @@ return (
           <p className="text-[10px] font-medium text-[#B4B2A9] uppercase tracking-wider px-2 mb-1 mt-4">Social</p>
           <SidebarItem icon={<Users size={16} />} label="Friends" active={activeTab === 'friends'} onClick={() => { setSelectedBookId(null); setActiveTab('friends'); }} />
           <SidebarItem icon={<User size={16} />} label="Profile" active={activeTab === 'profile'} onClick={() => { setSelectedBookId(null); setActiveTab('profile'); }} />
+          <SidebarItem 
+            icon={<Sparkles size={16} />} 
+            label="Recommendations" 
+            active={activeTab === 'recs'} 
+            onClick={() => { setSelectedBookId(null); setActiveTab('recs'); }} 
+            />
         </nav>
   
-        {/* Add book button */}
-        <div className="p-3 border-t border-[#E8E5DE]">
-          <button
+        {/* Sidebar bottom — add book + user + logout */}
+        <div className="p-3 border-t border-[#E8E5DE] flex flex-col gap-2">
+        <button
             onClick={() => setAddBookSheetOpen(true)}
             className="w-full bg-[#2C2C2A] text-[#F7F5F0] text-[12px] font-medium py-2.5 rounded-xl flex items-center justify-center gap-2"
-          >
+        >
             <Plus size={14} />
             Add book
-          </button>
+        </button>
+        <div className="flex items-center justify-between px-1 pt-1">
+            <div>
+            <p className="text-[12px] font-medium text-[#2C2C2A]">{user?.username}</p>
+            <p className="text-[10px] text-[#B4B2A9]">{user?.email}</p>
+            </div>
+            <button
+            onClick={logout}
+            className="text-[11px] text-[#888780] hover:text-[#2C2C2A] transition-colors"
+            >
+            Sign out
+            </button>
+        </div>
         </div>
       </aside>
   
