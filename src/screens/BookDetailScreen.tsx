@@ -2,7 +2,7 @@
 import { useLiveQuery } from 'dexie-react-hooks';
 import { db } from '../lib/db';
 import { useEffect, useState } from 'react';
-import { ArrowLeft, BookOpen, Trash2, Check } from 'lucide-react';
+import { ArrowLeft, BookOpen, Trash2, Check, ChevronUp, ChevronDown } from 'lucide-react';
 import { useUpdateProgress } from '../hooks/useUpdateProgress';
 import { useDeleteBook } from '../hooks/useDeleteBook';
 import { toast } from 'sonner';
@@ -48,6 +48,7 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
     if (book) {
       setReview(book.review ?? '');
       setRating(book.rating ?? 0);
+      setPageInput(String(book.pagesRead));
     }
   }, [book]);
   
@@ -92,7 +93,6 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
     if (isNaN(num) || num < 0) return;
     const diff = num - book.pagesRead;
     updatePages(book.id, diff);
-    setPageInput('');
   };
 
   const handleDelete = async () => {
@@ -150,22 +150,35 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
         <div className="bg-[#FDFCF9] px-4 py-4 flex flex-col gap-3">
           <p className="text-[10px] font-medium text-[#888780] uppercase tracking-wider">Progress</p>
           <div className="flex items-center gap-3">
-            <input
-              type="number"
-              value={pageInput}
-              onChange={e => setPageInput(e.target.value)}
-              placeholder={String(book.pagesRead)}
-              className="w-16 text-center bg-[#F0EDE6] border border-[#E0DDD6] rounded-lg py-2 text-[13px] font-medium text-[#2C2C2A] outline-none focus:border-[#C8C5BE]"
-            />
-            <span className="text-[13px] text-[#888780]">of {book.totalPages > 0 ? book.totalPages : '—'} pages</span>
-            <button
-              onClick={handleUpdatePages}
-              className="ml-auto bg-[#2C2C2A] text-[#F7F5F0] text-[12px] font-medium px-4 py-2 rounded-lg flex items-center gap-1.5"
-            >
-              <Check size={13} />
-              Update
-            </button>
-          </div>
+  <div className="flex items-center bg-[#F0EDE6] border border-[#E0DDD6] rounded-lg overflow-hidden">
+    <button
+      onClick={() => setPageInput(String(Math.max(0, parseInt(pageInput || '0') - 1)))}
+      className="px-2 py-2 text-[#5F5E5A] hover:bg-[#E8E5DE] transition-colors"
+    >
+      <ChevronDown size={14} />
+    </button>
+    <input
+      type="number"
+      value={pageInput}
+      onChange={e => setPageInput(e.target.value)}
+      className="w-12 text-center bg-transparent py-2 text-[13px] font-medium text-[#2C2C2A] outline-none"
+    />
+    <button
+      onClick={() => setPageInput(String(Math.min(book.totalPages, parseInt(pageInput || '0') + 1)))}
+      className="px-2 py-2 text-[#5F5E5A] hover:bg-[#E8E5DE] transition-colors"
+    >
+      <ChevronUp size={14} />
+    </button>
+  </div>
+  <span className="text-[13px] text-[#888780]">of {book.totalPages > 0 ? book.totalPages : '—'} pages</span>
+  <button
+    onClick={handleUpdatePages}
+    className="ml-auto bg-[#2C2C2A] text-[#F7F5F0] text-[12px] font-medium px-4 py-2 rounded-lg flex items-center gap-1.5 hover:cursor-pointer"
+  >
+    <Check size={13} />
+    Update
+  </button>
+</div>
           <div className="h-1 bg-[#E8E5DE] rounded-full">
             <div
               className="h-1 rounded-full transition-all"
