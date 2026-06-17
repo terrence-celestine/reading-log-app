@@ -1,5 +1,5 @@
 // src/components/MoreSheet.tsx
-import { X, User, Sparkles, NotebookPen, Bell } from 'lucide-react';
+import { X, User, Sparkles, NotebookPen, Bell, Compass } from 'lucide-react';
 import type { NavTab } from '../types';
 
 interface Props {
@@ -14,6 +14,7 @@ const ITEMS: { icon: React.ReactNode; label: string; tab: NavTab }[] = [
   { icon: <Sparkles size={18} />, label: 'Recommendations', tab: 'recs' },
   { icon: <User size={18} />, label: 'Profile', tab: 'profile' },
   { icon: <Bell size={18} />, label: 'Notifications', tab: 'notifications' },
+  { icon: <Compass size={18} />, label: 'Explore', tab: 'explore' as NavTab }
 ];
 
 const MoreSheet = ({ open, onClose, onNavigate, notificationCount = 0 }: Props) => {

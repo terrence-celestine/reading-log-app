@@ -1,7 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
 import { GoogleGenerativeAI } from '@google/generative-ai';
 
-
 interface Recommendation {
   id?: string;
   bookId: string;
@@ -13,22 +12,18 @@ interface Recommendation {
   isbn: string;
   totalPages: number;
   summary: string;
-  coverUrl?: string
+  coverUrl?: string;
 }
 
-
-// Lazily initialize the Gemini client to ensure process.env is fully loaded
 let genAI: GoogleGenerativeAI | null = null;
 
-const getGenAI = () =>{
+const getGenAI = () => {
   if (!genAI) {
     const apiKey = process.env.GEMINI_API_KEY;
-    if (apiKey) {
-      genAI = new GoogleGenerativeAI(apiKey);
-    }
+    if (apiKey) genAI = new GoogleGenerativeAI(apiKey);
   }
   return genAI;
-}
+};
 
 const getCoverUrl = async (isbn: string): Promise<string> => {
   const response = await fetch(`https://covers.openlibrary.org/b/isbn/${isbn}-M.jpg`);
@@ -36,83 +31,63 @@ const getCoverUrl = async (isbn: string): Promise<string> => {
 };
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
-  // 1. Only allow POST requests
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Method Not Allowed' });
-  }
+  if (req.method !== 'POST') return res.status(405).json({ error: 'Method Not Allowed' });
 
-  // 2. Validate the API Key is configured
   const aiClient = getGenAI();
-  if (!aiClient) {
-    return res.status(500).json({
-      error: 'Gemini API key is not configured on the server. Please set GEMINI_API_KEY.',
-    });
-  }
+  if (!aiClient) return res.status(500).json({ error: 'Gemini API key not configured.' });
 
-  const { books } = req.body;
+  const { books, genres } = req.body;
 
+  // Build prompt based on mode
+  const isExploreMode = genres && genres.length > 0;
 
-  // 3. Validate request body
-  if (books && books.length === 0) {
-    return res.status(400).json({ error: 'Title and Author are required.' });
-  }
+  const prompt = isExploreMode
+    ? `Recommend 6 highly regarded books in the following genre(s): ${genres.join(', ')}. 
+Include a mix of classic and modern titles. For each book provide its 13-digit ISBN if you are highly confident.
+Respond strictly in JSON format with the key "recommendations" (array of objects with keys "title" (string), "author" (string), "isbn" (string or null), "totalPages" (number or null), "summary" (string, 2 sentences max)). No markdown or backticks.`
+    : `Provide a list of recommended books based on the user's reading history: ${books.map((b: { title: string; author: string }) => `${b.title} by ${b.author}`).join(', ')}.
+If you are highly confident, provide its 13-digit ISBN.
+Respond strictly in JSON format with the key "recommendations" (array of objects with keys "title" (string), "author" (string), "isbn" (string or null), "totalPages" (number or null), "summary" (string)). No markdown or backticks.`;
 
-    try {
-    // 4. Call Gemini for a summary and ISBN-13 (using supported models)
+  try {
     let result;
     const modelsToTry = ['gemini-2.5-flash', 'gemini-2.5-flash-lite'];
-    let lastError: any = null;
+    let lastError: unknown = null;
 
     for (const modelName of modelsToTry) {
       try {
         const model = aiClient.getGenerativeModel({ model: modelName });
-        
-        const prompt = `Provide a list of recommended books based on the user's reading history: ${books.map(book => `${book.title} by ${book.author}`).join(', ')}". 
-Also, if you are highly confident, provide its 13-digit ISBN. 
-Respond strictly in JSON format with the keys "recommendations" (array of objects with the keys "title" (string), "author" (string), "isbn" (string or null), "totalPages" (number or null), "summary" (string)). Do not include any markdown formatting or backticks in your response.`;
-
         result = await model.generateContent({
           contents: [{ role: 'user', parts: [{ text: prompt }] }],
-          generationConfig: {
-            responseMimeType: 'application/json',
-          },
+          generationConfig: { responseMimeType: 'application/json' },
         });
-        
-        // If we succeeded, break out of the fallback loop!
         break;
-      } catch (err: any) {
-        console.warn(`Model ${modelName} failed, trying fallback...`, err.message || err);
+      } catch (err) {
+        console.warn(`Model ${modelName} failed, trying fallback...`);
         lastError = err;
       }
     }
 
-    if (!result) {
-      throw lastError || new Error('All Gemini models failed to respond.');
-    }
+    if (!result) throw lastError || new Error('All Gemini models failed.');
 
     const responseText = result.response.text();
     const parsedData = JSON.parse(responseText);
 
-    // get all cover urls from open library
-    const coverUrls = await Promise.all(parsedData.recommendations.map(async (recommendation: Recommendation) => {
-      const coverUrl = await getCoverUrl(recommendation.isbn);
-      return coverUrl;
-    }));
+    const coverUrls = await Promise.all(
+      parsedData.recommendations.map(async (rec: Recommendation) => {
+        if (!rec.isbn) return null;
+        return getCoverUrl(rec.isbn);
+      })
+    );
 
-    parsedData.recommendations.forEach((recommendation: Recommendation, index: number) => {
-      recommendation.coverUrl = coverUrls[index];
+    parsedData.recommendations.forEach((rec: Recommendation, i: number) => {
+      rec.coverUrl = coverUrls[i] ?? undefined;
     });
-          
-      // 6. Return the enriched data
-      return res.status(200).json({
-        recommendations: parsedData.recommendations || []
-      });
 
-  } catch (error: any) {
-    console.error('Enrichment API Error:', error);
-    return res.status(500).json({
-      error: 'Failed to get recommended book details.',
-      details: error.message || error,
-    });
+    return res.status(200).json({ recommendations: parsedData.recommendations || [] });
+
+  } catch (error: unknown) {
+    console.error('Recommend API Error:', error);
+    return res.status(500).json({ error: 'Failed to get recommendations.' });
   }
 }

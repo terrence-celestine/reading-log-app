@@ -37,7 +37,7 @@ const BookCard = ({ book, onClick }: BookCardProps) => {
     >
       {/* Cover */}
       <div
-        className="w-11 h-16 rounded-lg shrink-0 flex items-center justify-center overflow-hidden"
+        className="w-28 h-40 rounded-lg shrink-0 flex items-center justify-center overflow-hidden"
         style={{ background: color.bg }}
       >
         {book.coverUrl ? (
@@ -47,40 +47,44 @@ const BookCard = ({ book, onClick }: BookCardProps) => {
             className="w-full h-full object-cover rounded-lg"
           />
         ) : (
-          <BookOpen size={18} color={color.icon} />
+          <BookOpen size={22} color={color.icon} />
         )}
       </div>
 
       {/* Info */}
-      <div className="flex-1 min-w-0 flex flex-col justify-between">
-        <div>
-          <p className="text-[13px] font-medium text-[#2C2C2A] truncate">{book.title}</p>
-          <p className="text-[11px] text-[#888780] mt-0.5">{book.author}</p>
-          <div className="flex items-center gap-2 mt-2">
-            <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.classes}`}>
-              {status.label}
-            </span>
-          </div>
-        </div>
+      <div className="book-info flex-1 min-w-0 flex flex-col justify-between">
+  <div>
+    <p className="text-[13px] font-medium text-[#2C2C2A] truncate">{book.title}</p>
+    <p className="text-[11px] text-[#888780] mt-0.5">{book.author}</p>
+    <div className="flex items-center gap-2 mt-2">
+      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${status.classes}`}>
+        {status.label}
+      </span>
+    </div>
+    {book.summary && (
+      <p className="text-[11px] text-[#5F5E5A] leading-relaxed mt-2 line-clamp-2">
+        {book.summary}
+      </p>
+    )}
+  </div>
 
-        {/* Progress bar — only show if reading or has pages */}
-        {book.totalPages > 0 && (
-          <div className="mt-2">
-            <div className="h-[3px] bg-[#E8E5DE] rounded-full">
-              <div
-                className="h-[3px] rounded-full transition-all"
-                style={{
-                  width: `${progress}%`,
-                  background: book.status === 'finished' ? '#3B6D11' : '#2C2C2A'
-                }}
-              />
-            </div>
-            <p className="text-[10px] text-[#B4B2A9] mt-1">
-              {book.pagesRead} / {book.totalPages} pp
-            </p>
-          </div>
-        )}
+  {book.totalPages > 0 && (
+    <div className="mt-2">
+      <div className="h-[3px] bg-[#E8E5DE] rounded-full">
+        <div
+          className="h-[3px] rounded-full"
+          style={{
+            width: `${progress}%`,
+            background: book.status === 'finished' ? '#3B6D11' : '#2C2C2A'
+          }}
+        />
       </div>
+      <p className="text-[10px] text-[#B4B2A9] mt-1">
+        {book.pagesRead} / {book.totalPages} pp
+      </p>
+    </div>
+  )}
+</div>
     </div>
   );
 };

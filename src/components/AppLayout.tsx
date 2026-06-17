@@ -19,6 +19,8 @@ import type { NavTab } from '../types';
 import NotificationsScreen from '@/screens/NotificationScreen';
 import { useNotificationCount } from '@/hooks/useNotificationCount';
 import StatsScreen from '@/screens/StatsScreen';
+import ExploreScreen from '../screens/ExploreScreen';
+import { Compass } from 'lucide-react';
 
 const AppLayout = () => {
   const [activeTab, setActiveTab] = useState<NavTab>('library');
@@ -44,6 +46,7 @@ const AppLayout = () => {
       case 'notes': return <NotesScreen />;
       case 'notifications': return <NotificationsScreen />;
       case 'stats': return <StatsScreen />;
+      case 'explore': return <ExploreScreen />;
       default: return <HomeScreen onBookSelect={handleBookSelect} />;
     }
   };
@@ -66,6 +69,12 @@ return (
         {/* Nav items */}
         <nav className="flex flex-col gap-1 p-3 flex-1">
           <p className="text-[10px] font-medium text-[#B4B2A9] uppercase tracking-wider px-2 mb-1 mt-2">Library</p>
+          <SidebarItem
+            icon={<Compass size={16} />}
+            label="Explore"
+            active={activeTab === 'explore'}
+            onClick={() => { setSelectedBookId(null); setActiveTab('explore'); }}
+          />
           <SidebarItem icon={<BookOpen size={16} />} label="My books" active={activeTab === 'library' && !selectedBookId} onClick={() => { setSelectedBookId(null); setActiveTab('library'); }} />
           <SidebarItem icon={<BarChart2 size={16} />} label="Stats" active={activeTab === 'stats'} onClick={() => { setSelectedBookId(null); setActiveTab('stats'); }} />
           

@@ -106,6 +106,19 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
     setTimeout(() => setSaved(false), 2000);
   };
 
+  const handleStatusChange = async (status: 'to-read' | 'reading' | 'finished') => {
+    const updates: Partial<typeof book> = { status };
+    if (status === 'to-read') {
+      updates.pagesRead = 0;
+      setPageInput('0');
+    }
+    if (status === 'finished') {
+      updates.pagesRead = book.totalPages;
+      setPageInput(String(book.totalPages));
+    }
+    await db.books.update(book.id, updates);
+  };
+
   return (
     <div className="flex flex-col">
 
@@ -199,17 +212,29 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
           </div>
         )}
 
-        {/* Mark as finished */}
-        {book.status === 'reading' && (
-          <div className="bg-[#FDFCF9] px-4 py-4">
-            <button
-              onClick={() => updatePages(book.id, book.totalPages - book.pagesRead)}
-              className="w-full bg-[#EAF3DE] text-[#3B6D11] text-[13px] font-medium py-3 rounded-xl border border-[#C5DFA8]"
-            >
-              Mark as finished ✓
-            </button>
-          </div>
-        )}
+      {/* Status switcher */}
+      <div className="bg-[#FDFCF9] px-4 py-4 flex flex-col gap-2">
+        <p className="text-[10px] font-medium text-[#888780] uppercase tracking-wider">Status</p>
+        <div className="grid grid-cols-3 gap-2">
+          {(['to-read', 'reading', 'finished'] as const).map(s => {
+            const config = STATUS_CONFIG[s];
+            const isActive = book.status === s;
+            return (
+              <button
+                key={s}
+                onClick={() => handleStatusChange(s)}
+                className={`py-2 rounded-xl text-[11px] font-medium border transition-colors
+                  ${isActive
+                    ? 'bg-[#2C2C2A] text-[#F7F5F0] border-[#2C2C2A]'
+                    : 'bg-[#F0EDE6] text-[#5F5E5A] border-[#E0DDD6]'
+                  }`}
+              >
+                {config.label}
+              </button>
+            );
+          })}
+        </div>
+      </div>
       {/* Review & Rating — only show when finished */}
       {book.status === 'finished' && (
         <div className="bg-[#FDFCF9] px-4 py-4 flex flex-col gap-3">
@@ -221,7 +246,7 @@ const BookDetailScreen = ({ bookId, onBack }: Props) => {
                 onClick={() => setRating(star)}
                 className={`text-2xl transition-colors ${
                   star <= rating ? 'text-[#BA7517]' : 'text-[#E8E5DE]'
-                }`}
+                } hover:cursor-pointer`}
               >
                 ★
               </button>
