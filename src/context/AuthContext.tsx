@@ -23,7 +23,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
 
   // Check if already logged in on mount
   useEffect(() => {
-    fetch('/api/auth/me')
+    fetch('/api/auth')
       .then(res => res.ok ? res.json() : null)
       .then(data => {
         if (data) setUser(data);
@@ -32,7 +32,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   }, []);
 
   const login = async (email: string, password: string) => {
-    const res = await fetch('/api/auth/login', {
+    const res = await fetch('/api/auth?action=login', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, password }),
@@ -46,7 +46,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const register = async (email: string, username: string, password: string) => {
-    const res = await fetch('/api/auth/register', {
+    const res = await fetch('/api/auth?action=register', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ email, username, password }),
@@ -60,7 +60,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const logout = async () => {
-    await fetch('/api/auth/logout', { method: 'POST' });
+    await fetch('/api/auth?action=logout', { method: 'POST' });
     setUser(null);
   };
 
